@@ -1,0 +1,2 @@
+INSERT INTO `student` (`address`, `city`, `document_number`, `first_name`, `phone`, `second_name`, `second_surname`, `surname`)
+VALUES ('Calle Falsa 123', 'Bogota', '10121315', 'Alex', '1234567890', 'Perez', 'Suarez', 'Esteban');

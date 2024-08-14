@@ -1,0 +1,69 @@
+openapi: 3.0.2
+info:
+  title: API Documentation
+  version: 1.0.0
+servers:
+  - url: http://localhost:9090/school/
+tags:
+  - name: School
+    description: Endpoints for students and notes
+paths:
+  /uploadNotes/{subjectId}:
+    post:
+      tags:
+        - School
+      summary: Record upload of grades of a subject to a student via Excel
+      description: Register notes
+      operationId: recordNotes
+      parameters:
+        - name: subjectId
+          in: path
+          required: true
+          schema:
+            type: integer
+          description: The ID of the subject for which the notes are being uploaded.
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                file:
+                  type: string
+                  format: binary
+              required:
+                - file
+
+
+      responses:
+        200:
+          description: Student grades were uploaded successfully
+        400:
+          description: Bad Request - If the resource is misspelled (badly constructed URI) If the data in the request is not correct.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorObject'
+
+components:
+  schemas:
+    # Objects
+    ErrorObject:
+      type: object
+      additionalProperties: false
+      properties:
+        message:
+          type: string
+          description: Error message (detailed description)
+          example: Invalid Request. Please, check the data in the request (QueryString Parameters and/or Body).
+      description: Error details
+      example:
+        message: Invalid Request. Please, check the data in the request (QueryString Parameters and/or Body).
+    Excel:
+      type: string
+      format: binary
+      description: Excel in binary format.
+
+
+
