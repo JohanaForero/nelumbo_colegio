@@ -31,7 +31,7 @@ public class RecordNotesIntegrationTest extends BaseIT {
                 "109234", "ALEX", "3214555", "Alvares", "lopex", "seba");
         final int studentId = this.studentId("109234");
         final int subjectId = this.subjectId("matematicas");
-        this.jdbcTemplate.update("INSERT INTO student (student_id, subject_id, average, nota1, nota2, " +
+        this.jdbcTemplate.update("INSERT INTO registered (student_id, subject_id, average, nota1, nota2, " +
                 "nota3)", " VALUES (?, ?, ?, ?, ?, ?)", studentId, subjectId, 12, 43, 50);
 
         //When
