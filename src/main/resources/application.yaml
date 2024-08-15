@@ -13,6 +13,3 @@ spring:
   sql:
     init:
       data-locations: classpath:data.sql
-
-
-
