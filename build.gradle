@@ -46,6 +46,8 @@ dependencies {
     annotationProcessor 'org.projectlombok:lombok:1.18.34'
     annotationProcessor 'org.projectlombok:lombok-mapstruct-binding:0.2.0'
 
+    implementation 'org.apache.pdfbox:pdfbox:2.0.24'
+
     compileOnly 'jakarta.servlet:jakarta.servlet-api:6.1.0'
     compileOnly 'org.projectlombok:lombok:1.18.34'
 

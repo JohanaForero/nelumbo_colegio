@@ -36,6 +36,26 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorObject'
+  /registered/generate-pdf:
+    get:
+      tags:
+        - Registered
+      summary: Generate a PDF with all registered records
+      description: Returns a PDF containing all registered records encoded in Base64.
+      operationId: generateAllRegisteredPdf
+      responses:
+        200:
+          description: PDF encoded in Base64 with all registered records
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  pdfBase64:
+                    type: string
+                    description: PDF file encoded in Base64
+        500:
+          description: Internal server error
   /allRegistrations:
     get:
       tags:
