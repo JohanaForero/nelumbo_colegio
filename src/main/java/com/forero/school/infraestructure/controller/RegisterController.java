@@ -8,12 +8,4 @@ import org.springframework.web.bind.annotation.RestController;
 @RequiredArgsConstructor
 @RequestMapping("${openapi.aPIDocumentation.base-path}")
 public class RegisterController {
-
-
-//    @Override
-//    public ResponseEntity<Void> recordNotes(final Integer subjectId, MultipartFile file) {
-//        this.registerUseCase.registerNotes(subjectId, file);
-//        return UploadNotesApi.super.recordNotes(subjectId, file);
-//    }
-//}
 }

@@ -34,8 +34,6 @@ paths:
                   format: binary
               required:
                 - file
-
-
       responses:
         200:
           description: Student grades were uploaded successfully
