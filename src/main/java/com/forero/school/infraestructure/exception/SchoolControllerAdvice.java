@@ -2,6 +2,7 @@ package com.forero.school.infraestructure.exception;
 
 import com.forero.school.application.exception.CoreException;
 import com.forero.school.domain.exception.CodeException;
+import com.forero.school.infraestructure.controller.GetRegisteredPdfController;
 import com.forero.school.infraestructure.controller.RegisterController;
 import com.forero.school.infraestructure.controller.SubjectController;
 import com.forero.school.openapi.model.ErrorObjectDto;
@@ -18,7 +19,8 @@ import java.util.AbstractMap;
 import java.util.Map;
 
 @Slf4j
-@ControllerAdvice(assignableTypes = {RegisterController.class, SubjectController.class})
+@ControllerAdvice(assignableTypes = {RegisterController.class, SubjectController.class,
+        GetRegisteredPdfController.class})
 public class SchoolControllerAdvice {
     private static final String LOGGER_PREFIX = String.format("[%s] ", RegisterController.class.getSimpleName());
 

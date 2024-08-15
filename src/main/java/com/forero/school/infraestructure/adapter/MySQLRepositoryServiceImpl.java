@@ -15,6 +15,8 @@ import com.forero.school.infraestructure.repository.entity.SubjectEntity;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.CellType;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
@@ -23,8 +25,11 @@ import org.springframework.stereotype.Repository;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
 @Slf4j
@@ -46,24 +51,30 @@ public class MySQLRepositoryServiceImpl implements RepositoryService {
                 if (row.getRowNum() == 0) {
                     continue;
                 }
-
-                String studentIdentification = row.getCell(1).getStringCellValue();
-                int nota1 = (int) row.getCell(2).getNumericCellValue();
-                int nota2 = (int) row.getCell(3).getNumericCellValue();
-                int nota3 = (int) row.getCell(4).getNumericCellValue();
+                String studentIdentification = "";
+                if (row.getCell(1).getCellType() == CellType.STRING) {
+                    studentIdentification = row.getCell(1).getStringCellValue();
+                } else if (row.getCell(1).getCellType() == CellType.NUMERIC) {
+                    studentIdentification = String.valueOf(row.getCell(1).getNumericCellValue());
+                }
+                BigDecimal nota1 = BigDecimal.valueOf((int) row.getCell(2).getNumericCellValue());
+                BigDecimal nota2 = BigDecimal.valueOf((int) row.getCell(3).getNumericCellValue());
+                BigDecimal nota3 = BigDecimal.valueOf((int) row.getCell(4).getNumericCellValue());
 
                 final StudentEntity student = studentRepository.findByDocumentNumber(studentIdentification)
                         .orElse(null);
                 if (student != null && subject != null) {
-                    BigDecimal average = BigDecimal.valueOf((nota1 + nota2 + nota3) / 3.0);
+                    BigDecimal sumOfNotes = nota1.add(nota2).add(nota3);
+                    BigDecimal totalPoints = BigDecimal.valueOf(100); // Asignamos 100 como total posible
+                    BigDecimal average = sumOfNotes.divide(totalPoints, 2, RoundingMode.HALF_EVEN).multiply(BigDecimal.valueOf(100));
 
                     RegisteredEntity registeredEntity = new RegisteredEntity();
-//                    registeredEntity.setStudent(student);
-//                    registeredEntity.setSubject(subject);
-//                    registeredEntity.setNota1((() nota1));
-//                    registeredEntity.setNota2(nota2);
-//                    registeredEntity.setNota3(nota3);
-//                    registeredEntity.setAverage(average);
+                    registeredEntity.setStudent(student);
+                    registeredEntity.setSubject(subject);
+                    registeredEntity.setNota1(nota1);
+                    registeredEntity.setNota2(nota2);
+                    registeredEntity.setNota3(nota3);
+                    registeredEntity.setAverage(average);
 
                     registeredRepository.save(registeredEntity);
                 }
@@ -112,5 +123,49 @@ public class MySQLRepositoryServiceImpl implements RepositoryService {
                 .map(this.registeredMapper::toModel)
                 .toList();
     }
+
+    @Override
+    public void uploadGrades(@NonNull final MultipartFile file, @NonNull final Long idSubject) throws IOException {
+        try (InputStream is = file.getInputStream();
+             Workbook workbook = new XSSFWorkbook(is)) {
+
+            Sheet sheet = workbook.getSheetAt(0);
+            Iterator<Row> iterator = sheet.iterator();
+
+            if (iterator.hasNext()) {
+                iterator.next();
+            }
+            while (iterator.hasNext()) {
+                Row row = iterator.next();
+                String subjectName = row.getCell(0).getStringCellValue();
+                String estudentName = row.getCell(1).getStringCellValue();
+
+                String documentoIdentidad = row.getCell(2).getStringCellValue();
+                BigDecimal nota1 = getBigDecimalFromCell(row.getCell(3));
+                BigDecimal nota2 = getBigDecimalFromCell(row.getCell(4));
+                BigDecimal nota3 = getBigDecimalFromCell(row.getCell(5));
+                StudentEntity studentEntity = this.studentRepository.findByDocumentNumber(documentoIdentidad).orElse(null);
+                SubjectEntity subjectEntity = this.subjectRepository.findByName(estudentName).orElse(null);
+                BigDecimal average = nota1.add(nota2).add(nota3).divide(BigDecimal.valueOf(3));
+
+                RegisteredEntity registeredEntity = new RegisteredEntity();
+                registeredEntity.setStudent(studentEntity);
+                registeredEntity.setSubject(subjectEntity);
+                registeredEntity.setAverage(average);
+                registeredEntity.setNota1(nota1);
+                registeredEntity.setNota2(nota2);
+                registeredEntity.setNota3(nota3);
+                registeredRepository.save(registeredEntity);
+            }
+        }
+    }
+
+    public BigDecimal getBigDecimalFromCell(Cell cell) {
+        if (cell == null || cell.getCellType() != CellType.NUMERIC) {
+            return null;
+        }
+        return BigDecimal.valueOf(cell.getNumericCellValue());
+    }
+
 }
 
