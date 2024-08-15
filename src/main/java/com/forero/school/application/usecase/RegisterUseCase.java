@@ -1,8 +1,11 @@
 package com.forero.school.application.usecase;
 
 import com.forero.school.application.service.RepositoryService;
+import com.forero.school.domain.agregate.DataResultAgregate;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
+
+import java.util.List;
 
 @Service
 public record RegisterUseCase(RepositoryService repositoryService) {
@@ -11,9 +14,8 @@ public record RegisterUseCase(RepositoryService repositoryService) {
         this.repositoryService.saveNotes(subjectId, file);
     }
 
-    private void validateIfSubjectExists(final int subjectId) {
-        if (this.repositoryService.existsSubject(subjectId)) {
-
-        }
+    public List<DataResultAgregate> getAllSubjects() {
+        final List<DataResultAgregate> subjects = this.repositoryService.getAllSubjectAndStudents();
+        return subjects;
     }
 }

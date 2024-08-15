@@ -8,6 +8,22 @@ tags:
   - name: School
     description: Endpoints for students and notes
 paths:
+  /subjectsWithStudents:
+    get:
+      tags:
+        - School
+      summary: Get all subjects with their students
+      description: Returns a list of subjects with their associated students.
+      operationId: getAllSubjectsWithStudents
+      responses:
+        200:
+          description: A list of subjects with students
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/SubjectResponseDto'
   /uploadNotes/{subjectId}:
     post:
       tags:
@@ -38,14 +54,13 @@ paths:
         200:
           description: Student grades were uploaded successfully
         400:
-          description: Bad Request - If the resource is misspelled (badly constructed URI) If the data in the request is not correct.
+          description: Bad Request - If the resource is misspelled (badly constructed URI) or if the data in the request is not correct.
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorObject'
 components:
   schemas:
-    # Objects
     ErrorObject:
       type: object
       additionalProperties: false
@@ -57,3 +72,33 @@ components:
       description: Error details
       example:
         message: Invalid Request. Please, check the data in the request (QueryString Parameters and/or Body).
+    SubjectResponseDto:
+      type: object
+      properties:
+        subjectId:
+          type: integer
+          description: The ID of the subject
+          example: 1
+        subjectName:
+          type: string
+          description: The name of the subject
+          example: Mathematics
+        students:
+          type: array
+          items:
+            $ref: '#/components/schemas/StudentDto'
+    StudentDto:
+      type: object
+      required:
+        - studentId
+        - studentName
+      properties:
+        studentId:
+          type: integer
+          description: The ID of the student
+          example: 123
+        studentName:
+          type: string
+          description: The name of the student
+          example: John Doe
+      description: A student associated with a subject

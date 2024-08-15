@@ -5,6 +5,7 @@ import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 
 import java.io.Serial;
+import java.io.Serializable;
 
 @Getter
 @Slf4j

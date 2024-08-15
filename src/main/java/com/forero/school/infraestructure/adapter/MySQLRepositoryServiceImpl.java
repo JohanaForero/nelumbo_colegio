@@ -2,7 +2,10 @@ package com.forero.school.infraestructure.adapter;
 
 import com.forero.school.application.exception.RepositoryException;
 import com.forero.school.application.service.RepositoryService;
+import com.forero.school.domain.agregate.DataResultAgregate;
 import com.forero.school.domain.exception.CodeException;
+import com.forero.school.infraestructure.repository.RegisteredRepository;
+import com.forero.school.infraestructure.repository.StudentRepository;
 import com.forero.school.infraestructure.repository.SubjectRepository;
 import com.forero.school.infraestructure.repository.entity.RegisteredEntity;
 import com.forero.school.infraestructure.repository.entity.StudentEntity;
@@ -17,70 +20,85 @@ import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.stereotype.Repository;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.math.BigDecimal;
-import java.util.Optional;
+import java.util.ArrayList;
+import java.util.List;
 
 @Slf4j
 @Repository
 @RequiredArgsConstructor
 public class MySQLRepositoryServiceImpl implements RepositoryService {
-    private static SubjectRepository subjectRepository;
+    private final SubjectRepository subjectRepository;
+    private final StudentRepository studentRepository;
+    private final RegisteredRepository registeredRepository;
 
     @Override
     public void saveNotes(@NonNull final Integer subjectId, @NonNull final MultipartFile file) {
+        final SubjectEntity subject = subjectRepository.findById(Long.valueOf(subjectId)).orElse(null);
         try (Workbook workbook = new XSSFWorkbook(file.getInputStream())) {
-            Sheet sheet = workbook.getSheetAt(0); // Obtiene la primera hoja
+            Sheet sheet = workbook.getSheetAt(0);
 
-            // Iterar sobre las filas
             for (Row row : sheet) {
-                if (row.getRowNum() == 0) { // Salta la primera fila si es el encabezado
+                if (row.getRowNum() == 0) {
                     continue;
                 }
 
-                // Lee los datos de la fila
-                String studentName = row.getCell(0).getStringCellValue();
                 String studentIdentification = row.getCell(1).getStringCellValue();
                 int nota1 = (int) row.getCell(2).getNumericCellValue();
                 int nota2 = (int) row.getCell(3).getNumericCellValue();
                 int nota3 = (int) row.getCell(4).getNumericCellValue();
 
-                // Busca el estudiante por identificación
-                Optional<StudentEntity> studentOpt = studentRepository.findByIdentification(studentIdentification);
-                if (!studentOpt.isPresent()) {
-                    throw new RuntimeException("Student with identification " + studentIdentification + " not found");
+                final StudentEntity student = studentRepository.findByDocumentNumber(studentIdentification)
+                        .orElse(null);
+                if (student != null && subject != null) {
+                    BigDecimal average = BigDecimal.valueOf((nota1 + nota2 + nota3) / 3.0);
+
+                    RegisteredEntity registeredEntity = new RegisteredEntity();
+                    registeredEntity.setStudent(student);
+                    registeredEntity.setSubject(subject);
+                    registeredEntity.setNota1(nota1);
+                    registeredEntity.setNota2(nota2);
+                    registeredEntity.setNota3(nota3);
+                    registeredEntity.setAverage(average);
+
+                    registeredRepository.save(registeredEntity);
                 }
-
-                StudentEntity student = studentOpt.get();
-
-                // Verifica que el ID de la materia sea válido
-                if (!subjectRepository.existsById(subjectId)) {
-                    throw new RuntimeException("Subject with ID " + subjectId + " not found");
-                }
-
-                // Calcula el promedio
-                BigDecimal average = BigDecimal.valueOf((nota1 + nota2 + nota3) / 3.0);
-
-                // Crea y guarda la entidad RegisteredEntity
-                RegisteredEntity registeredEntity = new RegisteredEntity();
-                registeredEntity.setStudent(student);
-                registeredEntity.setSubject(new SubjectEntity(subjectId)); // Se asume que existe un constructor que recibe el ID
-                registeredEntity.setNota1(nota1);
-                registeredEntity.setNota2(nota2);
-                registeredEntity.setNota3(nota3);
-                registeredEntity.setAverage(average);
-
-                registeredRepository.save(registeredEntity);
             }
+        } catch (IOException ioException) {
+            throw new RepositoryException(CodeException.INVALID_PARAMETERS, null, subject.getName());
         }
     }
 
     @Override
     public void validateIfSubjectExists(int subjectId) {
-        final long idSubject = subjectId;
-        final boolean existSubjectId = this.subjectRepository.existsById(idSubject);
+        final boolean existSubjectId = this.subjectRepository.existsById((long) subjectId);
         if (!existSubjectId) {
-            throw new RepositoryException(CodeException.SUBJECT_NOT_FOUND);
+            throw new RepositoryException(CodeException.SUBJECT_NOT_FOUND, null);
         }
+    }
+
+    @Override
+    public List<DataResultAgregate> getAllSubjectAndStudents() {
+        List<DataResultAgregate> result = new ArrayList<>();
+        List<SubjectEntity> subject = this.subjectRepository.findAll();
+        for (final SubjectEntity subject1 : subject) {
+            final DataResultAgregate dataResultAgregate = new DataResultAgregate();
+            List<StudentEntity> students = this.getStudentsBySubjectId(subject1.getId().intValue());
+            dataResultAgregate.setResult(students);
+            dataResultAgregate.setSubjectId(subject1.getId().intValue());
+            dataResultAgregate.setName(subject1.getName());
+            result.add(dataResultAgregate);
+
+        }
+        return result;
+    }
+
+    public List<StudentEntity> getStudentsBySubjectId(int subjectId) {
+        return registeredRepository.findBySubjectId(subjectId)
+                .stream()
+                .map(RegisteredEntity::getStudent)
+                .toList();
     }
 }
 

@@ -36,7 +36,6 @@ public class SchoolControllerAdvice {
         final String paramName = missingServletRequestParameterException.getParameterName();
 
         final ErrorObjectDto errorObjectDto = new ErrorObjectDto();
-        errorObjectDto.code(codeException.name());
         errorObjectDto.message(String.format(codeException.getMessageFormat(), paramName));
 
         final HttpStatus httpStatus = HTTP_STATUS_BY_CODE_EXCEPTION.getOrDefault(codeException, HttpStatus.BAD_REQUEST);
@@ -50,7 +49,7 @@ public class SchoolControllerAdvice {
         final CodeException codeException = CodeException.INVALID_PARAMETERS;
         final String paramName = "filters";
         final ErrorObjectDto errorObjectDto = new ErrorObjectDto();
-        errorObjectDto.setCode(codeException.name());
+//        errorObjectDto.setCode(codeException.name());
         errorObjectDto.setMessage(String.format(codeException.getMessageFormat(), paramName));
 
         final HttpStatus httpStatus = HTTP_STATUS_BY_CODE_EXCEPTION.getOrDefault(codeException, HttpStatus.BAD_REQUEST);
@@ -65,7 +64,7 @@ public class SchoolControllerAdvice {
         final String paramName = missingServletRequestPartException.getRequestPartName();
 
         final ErrorObjectDto errorObjectDto = new ErrorObjectDto();
-        errorObjectDto.code(codeException.name());
+//        errorObjectDto.code(codeException.name());
         errorObjectDto.message(String.format(codeException.getMessageFormat(), paramName));
 
         final HttpStatus httpStatus = HTTP_STATUS_BY_CODE_EXCEPTION.getOrDefault(codeException, HttpStatus.NOT_EXTENDED);
@@ -78,7 +77,7 @@ public class SchoolControllerAdvice {
         final CodeException codeException = coreException.getCodeException();
 
         final ErrorObjectDto errorObjectDto = new ErrorObjectDto();
-        errorObjectDto.code(codeException.name());
+//        errorObjectDto.code(codeException.name());
         errorObjectDto.message(coreException.getMessage());
 
         final HttpStatus httpStatus = HTTP_STATUS_BY_CODE_EXCEPTION.getOrDefault(codeException, HttpStatus.NOT_EXTENDED);
@@ -92,7 +91,7 @@ public class SchoolControllerAdvice {
         final CodeException codeException = CodeException.INTERNAL_SERVER_ERROR;
 
         final ErrorObjectDto errorObjectDto = new ErrorObjectDto();
-        errorObjectDto.code(codeException.name());
+//        errorObjectDto.code(codeException.name());
         errorObjectDto.message(exception.getMessage());
 
         final HttpStatus httpStatus = HTTP_STATUS_BY_CODE_EXCEPTION.getOrDefault(codeException, HttpStatus.NOT_EXTENDED);
