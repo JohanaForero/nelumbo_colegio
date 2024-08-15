@@ -34,11 +34,11 @@ public class RegisteredEntity {
     private BigDecimal average;
 
     @Column(name = "nota1")
-    private int nota1;
+    private BigDecimal nota1;
 
     @Column(name = "nota2")
-    private int nota2;
+    private BigDecimal nota2;
 
     @Column(name = "nota3")
-    private int nota3;
+    private BigDecimal nota3;
 }

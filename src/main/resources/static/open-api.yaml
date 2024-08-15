@@ -24,6 +24,46 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/SubjectResponseDto'
+        404:
+          description: Not Found - If the resource list is empty, return EMPTY_LIST.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorObject'
+        500:
+          description: Internal Server Error - Use it as a General System Error, return INTERNAL_SERVER_ERROR.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorObject'
+  /allRegistrations:
+    get:
+      tags:
+        - School
+      summary: Get all registrations
+      description: Returns a list of all registered entities.
+      operationId: getAllRegistrations
+      responses:
+        200:
+          description: A list of all registrations
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/RegisteredResponseDto'
+        404:
+          description: Not Found - If the resource list is empty, return EMPTY_LIST.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorObject'
+        500:
+          description: Internal Server Error - Use it as a General System Error, return INTERNAL_SERVER_ERROR.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorObject'
   /uploadNotes/{subjectId}:
     post:
       tags:
@@ -59,8 +99,19 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorObject'
+        500:
+          description: Internal Server Error - Use it as a General System Error, return INTERNAL_SERVER_ERROR.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorObject'
 components:
   schemas:
+    # Properties
+    studentName:
+      type: string
+      description: The name of the student
+      example: John Doe
     ErrorObject:
       type: object
       additionalProperties: false
@@ -98,7 +149,43 @@ components:
           description: The ID of the student
           example: 123
         studentName:
+          $ref: '#/components/schemas/studentName'
+    RegisteredResponseDto:
+      type: object
+      required:
+        - registeredId
+        - studentName
+        - documentNumber
+        - subjectName
+        - average
+        - nota1
+        - nota2
+        - nota3
+      properties:
+        registeredId:
+          type: integer
+          description: The ID of the student
+          example: 123
+        studentName:
+          $ref: '#/components/schemas/studentName'
+        documentNumber:
           type: string
           description: The name of the student
           example: John Doe
-      description: A student associated with a subject
+        subjectName:
+          type: string
+          description: The name of the student
+          example: John Doe
+        average:
+          type: number
+          format: float
+        nota1:
+          type: number
+          format: float
+        nota2:
+          type: number
+          format: float
+        nota3:
+          type: number
+          format: float
+

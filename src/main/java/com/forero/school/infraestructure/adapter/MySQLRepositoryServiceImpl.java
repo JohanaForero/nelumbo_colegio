@@ -4,6 +4,8 @@ import com.forero.school.application.exception.RepositoryException;
 import com.forero.school.application.service.RepositoryService;
 import com.forero.school.domain.agregate.DataResultAgregate;
 import com.forero.school.domain.exception.CodeException;
+import com.forero.school.domain.model.Registered;
+import com.forero.school.infraestructure.mapper.RegisteredMapper;
 import com.forero.school.infraestructure.repository.RegisteredRepository;
 import com.forero.school.infraestructure.repository.StudentRepository;
 import com.forero.school.infraestructure.repository.SubjectRepository;
@@ -32,6 +34,7 @@ public class MySQLRepositoryServiceImpl implements RepositoryService {
     private final SubjectRepository subjectRepository;
     private final StudentRepository studentRepository;
     private final RegisteredRepository registeredRepository;
+    private final RegisteredMapper registeredMapper;
 
     @Override
     public void saveNotes(@NonNull final Integer subjectId, @NonNull final MultipartFile file) {
@@ -55,12 +58,12 @@ public class MySQLRepositoryServiceImpl implements RepositoryService {
                     BigDecimal average = BigDecimal.valueOf((nota1 + nota2 + nota3) / 3.0);
 
                     RegisteredEntity registeredEntity = new RegisteredEntity();
-                    registeredEntity.setStudent(student);
-                    registeredEntity.setSubject(subject);
-                    registeredEntity.setNota1(nota1);
-                    registeredEntity.setNota2(nota2);
-                    registeredEntity.setNota3(nota3);
-                    registeredEntity.setAverage(average);
+//                    registeredEntity.setStudent(student);
+//                    registeredEntity.setSubject(subject);
+//                    registeredEntity.setNota1((() nota1));
+//                    registeredEntity.setNota2(nota2);
+//                    registeredEntity.setNota3(nota3);
+//                    registeredEntity.setAverage(average);
 
                     registeredRepository.save(registeredEntity);
                 }
@@ -98,6 +101,15 @@ public class MySQLRepositoryServiceImpl implements RepositoryService {
         return registeredRepository.findBySubjectId(subjectId)
                 .stream()
                 .map(RegisteredEntity::getStudent)
+                .toList();
+    }
+
+    @Override
+    public List<Registered> getAllRegistered() {
+        List<RegisteredEntity> registeredEntityList = this.registeredRepository.findAll();
+        return registeredEntityList
+                .stream()
+                .map(this.registeredMapper::toModel)
                 .toList();
     }
 }
