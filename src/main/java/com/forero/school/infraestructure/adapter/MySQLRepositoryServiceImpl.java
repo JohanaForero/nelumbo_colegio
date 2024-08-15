@@ -137,16 +137,33 @@ public class MySQLRepositoryServiceImpl implements RepositoryService {
             }
             while (iterator.hasNext()) {
                 Row row = iterator.next();
-                String subjectName = row.getCell(0).getStringCellValue();
-                String estudentName = row.getCell(1).getStringCellValue();
+                String studentIdentification = "";
+                Cell cell = row.getCell(0);
 
-                String documentoIdentidad = row.getCell(2).getStringCellValue();
-                BigDecimal nota1 = getBigDecimalFromCell(row.getCell(3));
-                BigDecimal nota2 = getBigDecimalFromCell(row.getCell(4));
-                BigDecimal nota3 = getBigDecimalFromCell(row.getCell(5));
-                StudentEntity studentEntity = this.studentRepository.findByDocumentNumber(documentoIdentidad).orElse(null);
-                SubjectEntity subjectEntity = this.subjectRepository.findByName(estudentName).orElse(null);
-                BigDecimal average = nota1.add(nota2).add(nota3).divide(BigDecimal.valueOf(3));
+                // Manejo de diferentes tipos de celdas
+                if (cell != null) {
+                    switch (cell.getCellType()) {
+                        case STRING:
+                            studentIdentification = cell.getStringCellValue();
+                            break;
+                        case NUMERIC:
+                            studentIdentification = String.valueOf((long) cell.getNumericCellValue());
+                            break;
+                        default:
+                            log.warn("Tipo de celda inesperado para identificación del estudiante: {}", cell.getCellType());
+                            break;
+                    }
+                }
+//                String documentoIdentidad = row.getCell(0).getStringCellValue();
+                BigDecimal nota1 = getBigDecimalFromCell(row.getCell(1));
+                BigDecimal nota2 = getBigDecimalFromCell(row.getCell(2));
+                BigDecimal nota3 = getBigDecimalFromCell(row.getCell(2));
+                StudentEntity studentEntity = this.studentRepository.findByDocumentNumber(studentIdentification).orElse(null);
+                SubjectEntity subjectEntity = this.subjectRepository.findById(idSubject).orElse(null);
+                BigDecimal sumOfNotes = nota1.add(nota2).add(nota3);
+                BigDecimal totalPoints = BigDecimal.valueOf(100); // Total posible de puntos
+                BigDecimal average = sumOfNotes.divide(totalPoints, 2, RoundingMode.HALF_EVEN).multiply(BigDecimal.valueOf(100));
+
 
                 RegisteredEntity registeredEntity = new RegisteredEntity();
                 registeredEntity.setStudent(studentEntity);
