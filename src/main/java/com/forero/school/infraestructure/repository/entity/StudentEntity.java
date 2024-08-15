@@ -1,15 +1,18 @@
 package com.forero.school.infraestructure.repository.entity;
 
 import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.Table;
+import lombok.Getter;
 import lombok.Setter;
 
 @Setter
-//@Getter
-//@Entity
-//@Table(name = "student")
+@Getter
+@Entity
+@Table(name = "student")
 public class StudentEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
