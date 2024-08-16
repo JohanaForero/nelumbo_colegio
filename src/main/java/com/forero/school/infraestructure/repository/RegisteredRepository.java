@@ -7,4 +7,6 @@ import java.util.List;
 
 public interface RegisteredRepository extends JpaRepository<RegisteredEntity, Long> {
     List<RegisteredEntity> findBySubjectId(int subjectId);
+
+    List<RegisteredEntity> findAllBySubjectId(int subjectId);
 }
