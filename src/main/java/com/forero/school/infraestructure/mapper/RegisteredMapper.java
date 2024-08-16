@@ -10,7 +10,6 @@ import java.util.List;
 
 @Mapper
 public interface RegisteredMapper {
-
     @Mapping(target = "average", source = "average")
     @Mapping(target = "student.documentNumber", source = "student.documentNumber")
     @Mapping(target = "subject.name", source = "subject.name")

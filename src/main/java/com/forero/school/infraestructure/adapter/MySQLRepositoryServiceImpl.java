@@ -190,12 +190,14 @@ public class MySQLRepositoryServiceImpl implements RepositoryService {
 
     @Override
     public byte[] generatePdf() {
-        // Obtener la lista de entidades registradas desde la base de datos
         List<RegisteredEntity> registeredEntityList = this.registeredRepository.findAll();
         List<Registered> registeredList = registeredEntityList
                 .stream()
                 .map(this.registeredMapper::toModel)
                 .toList();
+        if (registeredEntityList.isEmpty()) {
+            throw new RepositoryException(CodeException.EMPTY_LIST, null, "records");
+        }
 
         try (PDDocument document = new PDDocument(); ByteArrayOutputStream baos = new ByteArrayOutputStream()) {
             PDPage page = new PDPage();
@@ -203,24 +205,21 @@ public class MySQLRepositoryServiceImpl implements RepositoryService {
             PDPageContentStream contentStream = new PDPageContentStream(document, page);
 
             try {
-                // Configurar el título
                 contentStream.setFont(PDType1Font.HELVETICA_BOLD, 16);
                 contentStream.beginText();
-                contentStream.newLineAtOffset(220, 750); // Posición del título
+                contentStream.newLineAtOffset(220, 750);
                 contentStream.showText("Lista de Registros");
                 contentStream.endText();
 
-                // Configurar el contenido de la tabla
                 float marginLeft = 50;
                 float marginTop = 700;
                 float rowHeight = 20;
                 float tableWidth = 500;
                 float cellMargin = 5;
 
-                // Encabezados de la tabla
-                String[] headers = {"ID", "Promedio", "Documento", "Nombre", "Nota 1", "Nota 2", "Nota 3", "Materia"};
+                String[] headers = {"Registros", "Promedio", "Documento", "Nombre", "Nota 1", "Nota 2", "Nota 3",
+                        "Materia"};
 
-                // Dibujar los encabezados
                 contentStream.setFont(PDType1Font.HELVETICA_BOLD, 12);
                 contentStream.beginText();
                 contentStream.newLineAtOffset(marginLeft, marginTop);
@@ -232,13 +231,11 @@ public class MySQLRepositoryServiceImpl implements RepositoryService {
 
                 contentStream.endText();
 
-                // Dibujar las filas de datos
                 contentStream.setFont(PDType1Font.HELVETICA, 10);
                 marginTop -= rowHeight;
 
                 for (Registered registered : registeredList) {
                     if (marginTop < 50) {
-                        // Cerrar el contentStream actual antes de añadir una nueva página
                         contentStream.close();
                         page = new PDPage();
                         document.addPage(page);
@@ -284,12 +281,7 @@ public class MySQLRepositoryServiceImpl implements RepositoryService {
             return baos.toByteArray();
 
         } catch (IOException e) {
-            // Manejo de la excepción
-            // Puedes lanzar una excepción personalizada o devolver un valor por defecto
-            throw new RuntimeException("Error al generar el PDF", e);
+            throw new RepositoryException(CodeException.PDF_GENERATION_ERROR, null);
         }
     }
-
-
 }
-

@@ -29,6 +29,8 @@ public class SchoolControllerAdvice {
             new AbstractMap.SimpleEntry<>(CodeException.INVALID_PARAMETERS, HttpStatus.BAD_REQUEST),
             new AbstractMap.SimpleEntry<>(CodeException.STUDENT_NOT_FOUND, HttpStatus.BAD_REQUEST),
             new AbstractMap.SimpleEntry<>(CodeException.SUBJECT_NOT_FOUND, HttpStatus.BAD_REQUEST),
+            new AbstractMap.SimpleEntry<>(CodeException.RESOURCE_NOT_FOUND, HttpStatus.BAD_REQUEST),
+            new AbstractMap.SimpleEntry<>(CodeException.PDF_GENERATION_ERROR, HttpStatus.BAD_REQUEST),
             new AbstractMap.SimpleEntry<>(CodeException.INTERNAL_SERVER_ERROR, HttpStatus.INTERNAL_SERVER_ERROR)
     );
 

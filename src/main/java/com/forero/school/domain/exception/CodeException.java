@@ -9,6 +9,7 @@ public enum CodeException {
     EMPTY_LIST("No %s found in your school."),
     INTERNAL_SERVER_ERROR("Internal server error"),
     STUDENT_NOT_FOUND("Student not found"),
+    PDF_GENERATION_ERROR("Error generating PDF"),
     RESOURCE_NOT_FOUND("Resource not found"),
     SUBJECT_NOT_FOUND("Subject not found"),
     INVALID_PARAMETERS("Invalid request parameters. Please check the %s and try again.");
