@@ -13,7 +13,7 @@ import java.util.List;
 public record RegisterUseCase(RepositoryService repositoryService) {
     public void registerNotes(final Integer subjectId, final MultipartFile file) throws IOException {
         this.repositoryService.validateIfSubjectExists(subjectId);
-        this.repositoryService.uploadGrades(file, Long.valueOf(subjectId));
+        this.repositoryService.uploadGrades(file, subjectId);
     }
 
     public List<DataResultAgregate> getAllSubjects() {

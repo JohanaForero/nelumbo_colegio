@@ -13,7 +13,6 @@ import com.forero.school.infraestructure.repository.entity.RegisteredEntity;
 import com.forero.school.infraestructure.repository.entity.StudentEntity;
 import com.forero.school.infraestructure.repository.entity.SubjectEntity;
 import jakarta.transaction.Transactional;
-import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.pdfbox.pdmodel.PDDocument;
@@ -96,7 +95,7 @@ public class MySQLRepositoryServiceImpl implements RepositoryService {
 
     @Override
     @Transactional
-    public void uploadGrades(@NonNull final MultipartFile file, @NonNull final Long idSubject) throws IOException {
+    public void uploadGrades(final MultipartFile file, final int idSubject) {
         try (InputStream is = file.getInputStream();
              Workbook workbook = new XSSFWorkbook(is)) {
 
@@ -110,8 +109,7 @@ public class MySQLRepositoryServiceImpl implements RepositoryService {
             Set<String> studentIdentifications = new HashSet<>();
             Map<String, RegisteredEntity> existingRegistrations = new HashMap<>();
 
-            // Load existing registrations into a map
-            List<RegisteredEntity> registrations = registeredRepository.findAllBySubjectId(Math.toIntExact(idSubject));
+            List<RegisteredEntity> registrations = registeredRepository.findAllBySubjectId(idSubject);
             for (RegisteredEntity registration : registrations) {
                 existingRegistrations.put(
                         registration.getStudent().getDocumentNumber() + "_" + idSubject, registration);
@@ -141,29 +139,21 @@ public class MySQLRepositoryServiceImpl implements RepositoryService {
 
                 studentIdentifications.add(studentIdentification);
 
-                BigDecimal nota1 = getBigDecimalFromCell(row.getCell(1));
-                BigDecimal nota2 = getBigDecimalFromCell(row.getCell(2));
-                BigDecimal nota3 = getBigDecimalFromCell(row.getCell(3));
-                String finalStudentIdentification = studentIdentification;
-                StudentEntity studentEntity = this.studentRepository.findByDocumentNumber(studentIdentification)
-                        .orElseThrow(() -> new RepositoryException(CodeException.STUDENT_NOT_FOUND, null, finalStudentIdentification));
+                final BigDecimal noteOne = getBigDecimalFromCell(row.getCell(1));
+                final BigDecimal noteTwo = getBigDecimalFromCell(row.getCell(2));
+                final BigDecimal noteThree = getBigDecimalFromCell(row.getCell(3));
+                final String finalStudentIdentification = studentIdentification;
+                StudentEntity studentEntity = this.getSubject(finalStudentIdentification);
 
-                SubjectEntity subjectEntity = this.subjectRepository.findById(idSubject).orElse(null);
-                if (subjectEntity == null) {
-                    throw new RepositoryException(CodeException.SUBJECT_NOT_FOUND, null, idSubject.toString());
-                }
-
-
-                BigDecimal sumOfNotes = nota1.add(nota2).add(nota3);
-                BigDecimal totalNotes = BigDecimal.valueOf(3);
-                BigDecimal average = sumOfNotes.divide(totalNotes, 2, RoundingMode.HALF_EVEN);
+                SubjectEntity subjectEntity = this.getSubject(idSubject);
+                final BigDecimal average = this.calculateAverage(noteOne, noteTwo, noteThree);
                 RegisteredEntity existingRegistration =
                         existingRegistrations.get(studentIdentification + "_" + idSubject);
 
                 if (existingRegistration != null) {
-                    existingRegistration.setNota1(nota1);
-                    existingRegistration.setNota2(nota2);
-                    existingRegistration.setNota3(nota3);
+                    existingRegistration.setNota1(noteOne);
+                    existingRegistration.setNota2(noteTwo);
+                    existingRegistration.setNota3(noteThree);
                     existingRegistration.setAverage(average);
                     registeredRepository.save(existingRegistration);
                 } else {
@@ -171,13 +161,35 @@ public class MySQLRepositoryServiceImpl implements RepositoryService {
                     registeredEntity.setStudent(studentEntity);
                     registeredEntity.setSubject(subjectEntity);
                     registeredEntity.setAverage(average);
-                    registeredEntity.setNota1(nota1);
-                    registeredEntity.setNota2(nota2);
-                    registeredEntity.setNota3(nota3);
+                    registeredEntity.setNota1(noteOne);
+                    registeredEntity.setNota2(noteTwo);
+                    registeredEntity.setNota3(noteThree);
                     registeredRepository.save(registeredEntity);
                 }
             }
+        } catch (IOException e) {
+            throw new RepositoryException(CodeException.INTERNAL_SERVER_ERROR, null);
         }
+    }
+
+
+    private SubjectEntity getSubject(final int subjectId) {
+        SubjectEntity subjectEntity = this.subjectRepository.findById((long) subjectId).orElse(null);
+        if (subjectEntity == null) {
+            throw new RepositoryException(CodeException.SUBJECT_NOT_FOUND, null, String.valueOf(subjectId));
+        }
+        return subjectEntity;
+    }
+
+    private StudentEntity getSubject(final String studentIdentification) {
+        return this.studentRepository.findByDocumentNumber(studentIdentification)
+                .orElseThrow(() -> new RepositoryException(CodeException.STUDENT_NOT_FOUND, null, studentIdentification));
+    }
+
+    private BigDecimal calculateAverage(final BigDecimal noteOne, BigDecimal noteTwo, BigDecimal noteThree) {
+        final BigDecimal summationNotes = noteOne.add(noteTwo).add(noteThree);
+        final BigDecimal totalNotes = BigDecimal.valueOf(3);
+        return summationNotes.divide(totalNotes, 2, RoundingMode.HALF_EVEN);
     }
 
 
