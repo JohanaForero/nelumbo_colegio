@@ -8,8 +8,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.io.IOException;
-
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("${openapi.aPIDocumentation.base-path}")
@@ -18,12 +16,7 @@ public class RegisterController implements UploadNotesApi {
 
     @Override
     public ResponseEntity<Void> recordNotes(final Integer subjectId, final MultipartFile file) {
-        try {
-            this.registerUseCase.registerNotes(subjectId, file);
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
+        this.registerUseCase.registerNotes(subjectId, file);
         return ResponseEntity.ok().build();
     }
-
 }

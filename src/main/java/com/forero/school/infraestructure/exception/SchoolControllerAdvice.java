@@ -49,20 +49,6 @@ public class SchoolControllerAdvice {
         return new ResponseEntity<>(errorObjectDto, httpStatus);
     }
 
-//    @ExceptionHandler(HttpMessageNotReadableException.class)
-//    public ResponseEntity<ErrorObjectDto> handleHttpMessageNotReadableException(
-//            final HttpMessageNotReadableException httpMessageNotReadableException) {
-//        final CodeException codeException = CodeException.INVALID_PARAMETERS;
-//        final String paramName = "filters";
-//        final ErrorObjectDto errorObjectDto = new ErrorObjectDto();
-////        errorObjectDto.setCode(codeException.name());
-//        errorObjectDto.setMessage(String.format(codeException.getMessageFormat(), paramName));
-//
-//        final HttpStatus httpStatus = HTTP_STATUS_BY_CODE_EXCEPTION.getOrDefault(codeException, HttpStatus.BAD_REQUEST);
-//
-//        return new ResponseEntity<>(errorObjectDto, httpStatus);
-//    }
-
     @ExceptionHandler(MissingServletRequestPartException.class)
     public ResponseEntity<ErrorObjectDto> handleMissingServletRequestPartException(
             final MissingServletRequestPartException missingServletRequestPartException) {
@@ -88,18 +74,6 @@ public class SchoolControllerAdvice {
 
         return new ResponseEntity<>(errorObjectDto, httpStatus);
     }
-
-//    @ExceptionHandler(ResourcesNo.class)
-//    public ResponseEntity<ErrorObjectDto> handlerException(final CoreException coreException) {
-//        final CodeException codeException = coreException.getCodeException();
-//
-//        final ErrorObjectDto errorObjectDto = new ErrorObjectDto();
-//        errorObjectDto.message(coreException.getMessage());
-//
-//        final HttpStatus httpStatus = HTTP_STATUS_BY_CODE_EXCEPTION.getOrDefault(codeException, HttpStatus.NOT_EXTENDED);
-//
-//        return new ResponseEntity<>(errorObjectDto, httpStatus);
-//    }
 
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ErrorObjectDto> handlerException(final Exception exception) {

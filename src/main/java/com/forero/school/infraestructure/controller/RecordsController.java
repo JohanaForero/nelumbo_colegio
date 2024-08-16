@@ -22,8 +22,8 @@ public class RecordsController implements AllRegistrationsApi {
 
     @Override
     public ResponseEntity<List<RegisteredResponseDtoDto>> getAllRegistrations() {
-        List<Registered> recordsDomain = this.registerUseCase.getAllRecords();
-        List<RegisteredResponseDtoDto> recordsDto = this.registeredMapper.toDto(recordsDomain);
+        final List<Registered> recordsDomain = this.registerUseCase.getAllRecords();
+        final List<RegisteredResponseDtoDto> recordsDto = this.registeredMapper.toDto(recordsDomain);
         return new ResponseEntity<>(recordsDto, HttpStatus.OK);
     }
 }

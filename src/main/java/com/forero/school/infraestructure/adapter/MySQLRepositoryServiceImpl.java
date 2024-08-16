@@ -2,7 +2,7 @@ package com.forero.school.infraestructure.adapter;
 
 import com.forero.school.application.exception.RepositoryException;
 import com.forero.school.application.service.RepositoryService;
-import com.forero.school.domain.agregate.DataResultAgregate;
+import com.forero.school.domain.agregate.GeneralAggregate;
 import com.forero.school.domain.exception.CodeException;
 import com.forero.school.domain.model.Registered;
 import com.forero.school.infraestructure.mapper.RegisteredMapper;
@@ -51,7 +51,7 @@ public class MySQLRepositoryServiceImpl implements RepositoryService {
     private final RegisteredMapper registeredMapper;
 
     @Override
-    public void validateIfSubjectExists(int subjectId) {
+    public void validateIfSubjectExists(final int subjectId) {
         final boolean existSubjectId = this.subjectRepository.existsById((long) subjectId);
         if (!existSubjectId) {
             throw new RepositoryException(CodeException.SUBJECT_NOT_FOUND, null);
@@ -59,23 +59,23 @@ public class MySQLRepositoryServiceImpl implements RepositoryService {
     }
 
     @Override
-    public List<DataResultAgregate> getAllSubjectAndStudents() {
-        final List<DataResultAgregate> result = new ArrayList<>();
+    public List<GeneralAggregate> getAllSubjectAndStudents() {
+        final List<GeneralAggregate> result = new ArrayList<>();
         final List<SubjectEntity> subject = this.subjectRepository.findAll();
         for (final SubjectEntity subject1 : subject) {
-            final DataResultAgregate dataResultAgregate = new DataResultAgregate();
+            final GeneralAggregate generalAggregate = new GeneralAggregate();
             final List<StudentEntity> students = this.getStudentsBySubjectId(subject1.getId().intValue());
-            dataResultAgregate.setResult(students);
-            dataResultAgregate.setSubjectId(subject1.getId().intValue());
-            dataResultAgregate.setName(subject1.getName());
-            result.add(dataResultAgregate);
+            generalAggregate.setResult(students);
+            generalAggregate.setSubjectId(subject1.getId().intValue());
+            generalAggregate.setName(subject1.getName());
+            result.add(generalAggregate);
 
         }
         return result;
     }
 
-    public List<StudentEntity> getStudentsBySubjectId(int subjectId) {
-        return registeredRepository.findBySubjectId(subjectId)
+    public List<StudentEntity> getStudentsBySubjectId(final int subjectId) {
+        return this.registeredRepository.findBySubjectId(subjectId)
                 .stream()
                 .map(RegisteredEntity::getStudent)
                 .toList();
@@ -83,7 +83,7 @@ public class MySQLRepositoryServiceImpl implements RepositoryService {
 
     @Override
     public List<Registered> getAllRegistered() {
-        List<RegisteredEntity> registeredEntityList = this.registeredRepository.findAll();
+        final List<RegisteredEntity> registeredEntityList = this.registeredRepository.findAll();
         if (registeredEntityList.isEmpty()) {
             throw new RepositoryException(CodeException.EMPTY_LIST, null, "records");
         }
@@ -96,29 +96,29 @@ public class MySQLRepositoryServiceImpl implements RepositoryService {
     @Override
     @Transactional
     public void uploadGrades(final MultipartFile file, final int idSubject) {
-        try (InputStream is = file.getInputStream();
-             Workbook workbook = new XSSFWorkbook(is)) {
+        try (final InputStream is = file.getInputStream();
+             final Workbook workbook = new XSSFWorkbook(is)) {
 
-            Sheet sheet = workbook.getSheetAt(0);
-            Iterator<Row> iterator = sheet.iterator();
+            final Sheet sheet = workbook.getSheetAt(0);
+            final Iterator<Row> iterator = sheet.iterator();
 
             if (iterator.hasNext()) {
-                iterator.next(); // Skip header row
+                iterator.next();
             }
 
-            Set<String> studentIdentifications = new HashSet<>();
-            Map<String, RegisteredEntity> existingRegistrations = new HashMap<>();
+            final Set<String> studentIdentifications = new HashSet<>();
+            final Map<String, RegisteredEntity> existingRegistrations = new HashMap<>();
 
-            List<RegisteredEntity> registrations = registeredRepository.findAllBySubjectId(idSubject);
-            for (RegisteredEntity registration : registrations) {
+            final List<RegisteredEntity> registrations = this.registeredRepository.findAllBySubjectId(idSubject);
+            for (final RegisteredEntity registration : registrations) {
                 existingRegistrations.put(
                         registration.getStudent().getDocumentNumber() + "_" + idSubject, registration);
             }
 
             while (iterator.hasNext()) {
-                Row row = iterator.next();
+                final Row row = iterator.next();
                 String studentIdentification = "";
-                Cell cell = row.getCell(0);
+                final Cell cell = row.getCell(0);
 
                 if (cell != null) {
                     switch (cell.getCellType()) {
@@ -139,15 +139,15 @@ public class MySQLRepositoryServiceImpl implements RepositoryService {
 
                 studentIdentifications.add(studentIdentification);
 
-                final BigDecimal noteOne = getBigDecimalFromCell(row.getCell(1));
-                final BigDecimal noteTwo = getBigDecimalFromCell(row.getCell(2));
-                final BigDecimal noteThree = getBigDecimalFromCell(row.getCell(3));
+                final BigDecimal noteOne = this.getBigDecimalFromCell(row.getCell(1));
+                final BigDecimal noteTwo = this.getBigDecimalFromCell(row.getCell(2));
+                final BigDecimal noteThree = this.getBigDecimalFromCell(row.getCell(3));
                 final String finalStudentIdentification = studentIdentification;
-                StudentEntity studentEntity = this.getSubject(finalStudentIdentification);
+                final StudentEntity studentEntity = this.getSubject(finalStudentIdentification);
 
-                SubjectEntity subjectEntity = this.getSubject(idSubject);
+                final SubjectEntity subjectEntity = this.getSubject(idSubject);
                 final BigDecimal average = this.calculateAverage(noteOne, noteTwo, noteThree);
-                RegisteredEntity existingRegistration =
+                final RegisteredEntity existingRegistration =
                         existingRegistrations.get(studentIdentification + "_" + idSubject);
 
                 if (existingRegistration != null) {
@@ -155,26 +155,26 @@ public class MySQLRepositoryServiceImpl implements RepositoryService {
                     existingRegistration.setNota2(noteTwo);
                     existingRegistration.setNota3(noteThree);
                     existingRegistration.setAverage(average);
-                    registeredRepository.save(existingRegistration);
+                    this.registeredRepository.save(existingRegistration);
                 } else {
-                    RegisteredEntity registeredEntity = new RegisteredEntity();
+                    final RegisteredEntity registeredEntity = new RegisteredEntity();
                     registeredEntity.setStudent(studentEntity);
                     registeredEntity.setSubject(subjectEntity);
                     registeredEntity.setAverage(average);
                     registeredEntity.setNota1(noteOne);
                     registeredEntity.setNota2(noteTwo);
                     registeredEntity.setNota3(noteThree);
-                    registeredRepository.save(registeredEntity);
+                    this.registeredRepository.save(registeredEntity);
                 }
             }
-        } catch (IOException e) {
+        } catch (final IOException e) {
             throw new RepositoryException(CodeException.INTERNAL_SERVER_ERROR, null);
         }
     }
 
 
     private SubjectEntity getSubject(final int subjectId) {
-        SubjectEntity subjectEntity = this.subjectRepository.findById((long) subjectId).orElse(null);
+        final SubjectEntity subjectEntity = this.subjectRepository.findById((long) subjectId).orElse(null);
         if (subjectEntity == null) {
             throw new RepositoryException(CodeException.SUBJECT_NOT_FOUND, null, String.valueOf(subjectId));
         }
@@ -186,14 +186,14 @@ public class MySQLRepositoryServiceImpl implements RepositoryService {
                 .orElseThrow(() -> new RepositoryException(CodeException.STUDENT_NOT_FOUND, null, studentIdentification));
     }
 
-    private BigDecimal calculateAverage(final BigDecimal noteOne, BigDecimal noteTwo, BigDecimal noteThree) {
+    private BigDecimal calculateAverage(final BigDecimal noteOne, final BigDecimal noteTwo, final BigDecimal noteThree) {
         final BigDecimal summationNotes = noteOne.add(noteTwo).add(noteThree);
         final BigDecimal totalNotes = BigDecimal.valueOf(3);
         return summationNotes.divide(totalNotes, 2, RoundingMode.HALF_EVEN);
     }
 
 
-    public BigDecimal getBigDecimalFromCell(Cell cell) {
+    public BigDecimal getBigDecimalFromCell(final Cell cell) {
         if (cell == null || cell.getCellType() != CellType.NUMERIC) {
             return null;
         }
@@ -202,16 +202,16 @@ public class MySQLRepositoryServiceImpl implements RepositoryService {
 
     @Override
     public byte[] generatePdf() {
-        List<RegisteredEntity> registeredEntityList = this.registeredRepository.findAll();
+        final List<RegisteredEntity> registeredEntityList = this.registeredRepository.findAll();
         if (registeredEntityList.isEmpty()) {
             throw new RepositoryException(CodeException.EMPTY_LIST, null, "records");
         }
-        List<Registered> registeredList = registeredEntityList
+        final List<Registered> registeredList = registeredEntityList
                 .stream()
                 .map(this.registeredMapper::toModel)
                 .toList();
 
-        try (PDDocument document = new PDDocument(); ByteArrayOutputStream baos = new ByteArrayOutputStream()) {
+        try (final PDDocument document = new PDDocument(); final ByteArrayOutputStream baos = new ByteArrayOutputStream()) {
             PDPage page = new PDPage();
             document.addPage(page);
             PDPageContentStream contentStream = new PDPageContentStream(document, page);
@@ -223,20 +223,19 @@ public class MySQLRepositoryServiceImpl implements RepositoryService {
                 contentStream.showText("Lista de Registros");
                 contentStream.endText();
 
-                float marginLeft = 50;
+                final float marginLeft = 50;
                 float marginTop = 700;
-                float rowHeight = 20;
-                float tableWidth = 500;
-                float cellMargin = 5;
+                final float rowHeight = 20;
+                final float tableWidth = 500;
 
-                String[] headers = {"Registros", "Promedio", "Documento", "Nombre", "Nota 1", "Nota 2", "Nota 3",
+                final String[] headers = {"Registros", "Promedio", "Documento", "Nombre", "Nota 1", "Nota 2", "Nota 3",
                         "Materia"};
 
                 contentStream.setFont(PDType1Font.HELVETICA_BOLD, 12);
                 contentStream.beginText();
                 contentStream.newLineAtOffset(marginLeft, marginTop);
 
-                for (String header : headers) {
+                for (final String header : headers) {
                     contentStream.showText(header);
                     contentStream.newLineAtOffset(tableWidth / headers.length, 0);
                 }
@@ -246,7 +245,7 @@ public class MySQLRepositoryServiceImpl implements RepositoryService {
                 contentStream.setFont(PDType1Font.HELVETICA, 10);
                 marginTop -= rowHeight;
 
-                for (Registered registered : registeredList) {
+                for (final Registered registered : registeredList) {
                     if (marginTop < 50) {
                         contentStream.close();
                         page = new PDPage();
@@ -292,7 +291,7 @@ public class MySQLRepositoryServiceImpl implements RepositoryService {
             document.save(baos);
             return baos.toByteArray();
 
-        } catch (IOException e) {
+        } catch (final IOException e) {
             throw new RepositoryException(CodeException.PDF_GENERATION_ERROR, null);
         }
     }

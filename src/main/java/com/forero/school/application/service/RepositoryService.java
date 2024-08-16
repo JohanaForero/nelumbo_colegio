@@ -1,7 +1,7 @@
 package com.forero.school.application.service;
 
 
-import com.forero.school.domain.agregate.DataResultAgregate;
+import com.forero.school.domain.agregate.GeneralAggregate;
 import com.forero.school.domain.model.Registered;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -11,7 +11,7 @@ public interface RepositoryService {
 
     void validateIfSubjectExists(int subjectId);
 
-    List<DataResultAgregate> getAllSubjectAndStudents();
+    List<GeneralAggregate> getAllSubjectAndStudents();
 
     List<Registered> getAllRegistered();
 

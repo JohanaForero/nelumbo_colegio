@@ -7,7 +7,7 @@ import java.util.List;
 
 @Getter
 @Setter
-public class DataResultAgregate<T> {
+public class GeneralAggregate<T> {
     private List<T> result;
     private Integer subjectId;
     private String name;
