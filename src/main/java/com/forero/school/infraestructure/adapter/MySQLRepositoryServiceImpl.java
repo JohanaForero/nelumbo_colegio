@@ -12,6 +12,7 @@ import com.forero.school.infraestructure.repository.SubjectRepository;
 import com.forero.school.infraestructure.repository.entity.RegisteredEntity;
 import com.forero.school.infraestructure.repository.entity.StudentEntity;
 import com.forero.school.infraestructure.repository.entity.SubjectEntity;
+import jakarta.transaction.Transactional;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -46,48 +47,49 @@ public class MySQLRepositoryServiceImpl implements RepositoryService {
     private final RegisteredRepository registeredRepository;
     private final RegisteredMapper registeredMapper;
 
-    @Override
-    public void saveNotes(@NonNull final Integer subjectId, @NonNull final MultipartFile file) {
-        final SubjectEntity subject = subjectRepository.findById(Long.valueOf(subjectId)).orElse(null);
-        try (Workbook workbook = new XSSFWorkbook(file.getInputStream())) {
-            Sheet sheet = workbook.getSheetAt(0);
-
-            for (Row row : sheet) {
-                if (row.getRowNum() == 0) {
-                    continue;
-                }
-                String studentIdentification = "";
-                if (row.getCell(1).getCellType() == CellType.STRING) {
-                    studentIdentification = row.getCell(1).getStringCellValue();
-                } else if (row.getCell(1).getCellType() == CellType.NUMERIC) {
-                    studentIdentification = String.valueOf(row.getCell(1).getNumericCellValue());
-                }
-                BigDecimal nota1 = BigDecimal.valueOf((int) row.getCell(2).getNumericCellValue());
-                BigDecimal nota2 = BigDecimal.valueOf((int) row.getCell(3).getNumericCellValue());
-                BigDecimal nota3 = BigDecimal.valueOf((int) row.getCell(4).getNumericCellValue());
-
-                final StudentEntity student = studentRepository.findByDocumentNumber(studentIdentification)
-                        .orElse(null);
-                if (student != null && subject != null) {
-                    BigDecimal sumOfNotes = nota1.add(nota2).add(nota3);
-                    BigDecimal totalPoints = BigDecimal.valueOf(100); // Asignamos 100 como total posible
-                    BigDecimal average = sumOfNotes.divide(totalPoints, 2, RoundingMode.HALF_EVEN).multiply(BigDecimal.valueOf(100));
-
-                    RegisteredEntity registeredEntity = new RegisteredEntity();
-                    registeredEntity.setStudent(student);
-                    registeredEntity.setSubject(subject);
-                    registeredEntity.setNota1(nota1);
-                    registeredEntity.setNota2(nota2);
-                    registeredEntity.setNota3(nota3);
-                    registeredEntity.setAverage(average);
-
-                    registeredRepository.save(registeredEntity);
-                }
-            }
-        } catch (IOException ioException) {
-            throw new RepositoryException(CodeException.INVALID_PARAMETERS, null, subject.getName());
-        }
-    }
+//    @Override
+//    @Transactional
+//    public void saveNotes(@NonNull final Integer subjectId, @NonNull final MultipartFile file) {
+//        final SubjectEntity subject = subjectRepository.findById(Long.valueOf(subjectId)).orElse(null);
+//        try (Workbook workbook = new XSSFWorkbook(file.getInputStream())) {
+//            Sheet sheet = workbook.getSheetAt(0);
+//
+//            for (Row row : sheet) {
+//                if (row.getRowNum() == 0) {
+//                    continue;
+//                }
+//                String studentIdentification = "";
+//                if (row.getCell(1).getCellType() == CellType.STRING) {
+//                    studentIdentification = row.getCell(1).getStringCellValue();
+//                } else if (row.getCell(1).getCellType() == CellType.NUMERIC) {
+//                    studentIdentification = String.valueOf(row.getCell(1).getNumericCellValue());
+//                }
+//                BigDecimal nota1 = BigDecimal.valueOf((int) row.getCell(2).getNumericCellValue());
+//                BigDecimal nota2 = BigDecimal.valueOf((int) row.getCell(3).getNumericCellValue());
+//                BigDecimal nota3 = BigDecimal.valueOf((int) row.getCell(4).getNumericCellValue());
+//                final StudentEntity student = this.studentRepository.findByDocumentNumber(studentIdentification)
+//                        .orElseThrow(() -> new RepositoryException(CodeException.STUDENT_NOT_FOUND, null));
+//
+//                if (student != null && subject != null) {
+//                    BigDecimal sumOfNotes = nota1.add(nota2).add(nota3);
+//                    BigDecimal totalPoints = BigDecimal.valueOf(100);
+//                    BigDecimal average = sumOfNotes.divide(totalPoints, 2, RoundingMode.HALF_EVEN).multiply(BigDecimal.valueOf(100));
+//
+//                    RegisteredEntity registeredEntity = new RegisteredEntity();
+//                    registeredEntity.setStudent(student);
+//                    registeredEntity.setSubject(subject);
+//                    registeredEntity.setNota1(nota1);
+//                    registeredEntity.setNota2(nota2);
+//                    registeredEntity.setNota3(nota3);
+//                    registeredEntity.setAverage(average);
+//
+//                    registeredRepository.save(registeredEntity);
+//                }
+//            }
+//        } catch (IOException ioException) {
+//            throw new RepositoryException(CodeException.INVALID_PARAMETERS, null, subject.getName());
+//        }
+//    }
 
     @Override
     public void validateIfSubjectExists(int subjectId) {
@@ -99,11 +101,11 @@ public class MySQLRepositoryServiceImpl implements RepositoryService {
 
     @Override
     public List<DataResultAgregate> getAllSubjectAndStudents() {
-        List<DataResultAgregate> result = new ArrayList<>();
-        List<SubjectEntity> subject = this.subjectRepository.findAll();
+        final List<DataResultAgregate> result = new ArrayList<>();
+        final List<SubjectEntity> subject = this.subjectRepository.findAll();
         for (final SubjectEntity subject1 : subject) {
             final DataResultAgregate dataResultAgregate = new DataResultAgregate();
-            List<StudentEntity> students = this.getStudentsBySubjectId(subject1.getId().intValue());
+            final List<StudentEntity> students = this.getStudentsBySubjectId(subject1.getId().intValue());
             dataResultAgregate.setResult(students);
             dataResultAgregate.setSubjectId(subject1.getId().intValue());
             dataResultAgregate.setName(subject1.getName());
@@ -133,6 +135,7 @@ public class MySQLRepositoryServiceImpl implements RepositoryService {
     }
 
     @Override
+    @Transactional
     public void uploadGrades(@NonNull final MultipartFile file, @NonNull final Long idSubject) throws IOException {
         try (InputStream is = file.getInputStream();
              Workbook workbook = new XSSFWorkbook(is)) {
@@ -148,7 +151,6 @@ public class MySQLRepositoryServiceImpl implements RepositoryService {
                 String studentIdentification = "";
                 Cell cell = row.getCell(0);
 
-                // Manejo de diferentes tipos de celdas
                 if (cell != null) {
                     switch (cell.getCellType()) {
                         case STRING:
@@ -158,18 +160,20 @@ public class MySQLRepositoryServiceImpl implements RepositoryService {
                             studentIdentification = String.valueOf((long) cell.getNumericCellValue());
                             break;
                         default:
-                            log.warn("Tipo de celda inesperado para identificación del estudiante: {}", cell.getCellType());
                             break;
                     }
                 }
-//                String documentoIdentidad = row.getCell(0).getStringCellValue();
                 BigDecimal nota1 = getBigDecimalFromCell(row.getCell(1));
                 BigDecimal nota2 = getBigDecimalFromCell(row.getCell(2));
                 BigDecimal nota3 = getBigDecimalFromCell(row.getCell(2));
-                StudentEntity studentEntity = this.studentRepository.findByDocumentNumber(studentIdentification).orElse(null);
+
+                String finalStudentIdentification = studentIdentification;
+                final StudentEntity studentEntity = this.studentRepository.findByDocumentNumber(studentIdentification)
+                        .orElseThrow(() -> new RepositoryException(CodeException.STUDENT_NOT_FOUND, null, finalStudentIdentification));
+
                 SubjectEntity subjectEntity = this.subjectRepository.findById(idSubject).orElse(null);
                 BigDecimal sumOfNotes = nota1.add(nota2).add(nota3);
-                BigDecimal totalPoints = BigDecimal.valueOf(100); // Total posible de puntos
+                BigDecimal totalPoints = BigDecimal.valueOf(100);
                 BigDecimal average = sumOfNotes.divide(totalPoints, 2, RoundingMode.HALF_EVEN).multiply(BigDecimal.valueOf(100));
 
                 RegisteredEntity registeredEntity = new RegisteredEntity();
@@ -194,13 +198,13 @@ public class MySQLRepositoryServiceImpl implements RepositoryService {
     @Override
     public byte[] generatePdf() {
         List<RegisteredEntity> registeredEntityList = this.registeredRepository.findAll();
+        if (registeredEntityList.isEmpty()) {
+            throw new RepositoryException(CodeException.EMPTY_LIST, null, "records");
+        }
         List<Registered> registeredList = registeredEntityList
                 .stream()
                 .map(this.registeredMapper::toModel)
                 .toList();
-        if (registeredEntityList.isEmpty()) {
-            throw new RepositoryException(CodeException.EMPTY_LIST, null, "records");
-        }
 
         try (PDDocument document = new PDDocument(); ByteArrayOutputStream baos = new ByteArrayOutputStream()) {
             PDPage page = new PDPage();

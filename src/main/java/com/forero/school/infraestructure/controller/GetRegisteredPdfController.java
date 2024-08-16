@@ -20,11 +20,11 @@ public class GetRegisteredPdfController implements RegisteredApi {
 
     @Override
     public ResponseEntity<Resource> generateAllRegisteredPdf() {
-        byte[] pdfBytes = this.registerUseCase.generarPdf();
+        byte[] pdfBytes = this.registerUseCase.generatePDF();
         ByteArrayResource resource = new ByteArrayResource(pdfBytes);
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_PDF);
-        headers.setContentDisposition(ContentDisposition.attachment().filename("mi_informe.pdf").build());
+        headers.setContentDisposition(ContentDisposition.attachment().filename("Registros.pdf").build());
         return ResponseEntity.ok()
                 .headers(headers)
                 .contentLength(pdfBytes.length)

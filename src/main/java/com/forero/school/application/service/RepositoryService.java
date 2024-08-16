@@ -9,7 +9,7 @@ import java.io.IOException;
 import java.util.List;
 
 public interface RepositoryService {
-    void saveNotes(Integer subjectId, MultipartFile file);
+//    void saveNotes(Integer subjectId, MultipartFile file);
 
     void validateIfSubjectExists(int subjectId);
 
