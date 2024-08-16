@@ -5,6 +5,7 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.Index;
 import jakarta.persistence.Table;
 import lombok.Getter;
 import lombok.Setter;
@@ -12,7 +13,11 @@ import lombok.Setter;
 @Setter
 @Getter
 @Entity
-@Table(name = "student")
+@Table(name = "student",
+        indexes = {
+                @Index(name = "document_number_index", columnList = "document_number", unique = true)
+        }
+)
 public class StudentEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

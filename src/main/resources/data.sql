@@ -1,67 +1,139 @@
-INSERT INTO subject (name, notes_size) VALUES ('matematicas', 3);
-INSERT INTO subject (name, notes_size) VALUES ('ingles', 3);
-INSERT INTO subject (name, notes_size) VALUES ('sociales', 3);
-INSERT INTO subject (name, notes_size) VALUES ('español', 3);
-INSERT INTO subject (name, notes_size) VALUES ('quimica', 3);
-INSERT INTO subject (name, notes_size) VALUES ('biologia', 3);
-INSERT INTO subject (name, notes_size) VALUES ('taquigrafia', 3);
-INSERT INTO subject (name, notes_size) VALUES ('contabilidad', 3);
+INSERT INTO subject (name, notes_size)
+SELECT 'Matematicas', 3
+WHERE NOT EXISTS (SELECT 1 FROM subject WHERE name = 'Matematicas');
+
+INSERT INTO subject (name, notes_size)
+SELECT 'Ingles', 3
+WHERE NOT EXISTS (SELECT 1 FROM subject WHERE name = 'Ingles');
+
+INSERT INTO subject (name, notes_size)
+SELECT 'Sociales', 3
+WHERE NOT EXISTS (SELECT 1 FROM subject WHERE name = 'Sociales');
+
+INSERT INTO subject (name, notes_size)
+SELECT 'Religion', 3
+WHERE NOT EXISTS (SELECT 1 FROM subject WHERE name = 'Religion');
 
 INSERT INTO student (first_name, second_name, phone, city, address, surname, second_surname, document_number)
-VALUES ('Sebastian', 'Lor', '312455', 'bogota', 'bella vista', 'lopez', 'lopez', '3124556068');
+SELECT 'Sebastian', 'Lor', '312455', 'bogota', 'bella vista', 'lopez', 'lopez', '3124556068'
+WHERE NOT EXISTS (SELECT 1 FROM student WHERE document_number = '3124556068');
+
 INSERT INTO student (first_name, second_name, phone, city, address, surname, second_surname, document_number)
-VALUES ('andres', 'Lor', '312455', 'bogota', 'bella vista', 'lopez', 'lopez', '3124556067');
+SELECT 'Andres', 'Lor', '312455', 'bogota', 'bella vista', 'lopez', 'lopez', '3123556068'
+WHERE NOT EXISTS (SELECT 1 FROM student WHERE document_number = '3123556068');
+
 INSERT INTO student (first_name, second_name, phone, city, address, surname, second_surname, document_number)
-VALUES ('leonardo', 'Lor', '312455', 'bogota', 'bella vista', 'lopez', 'lopez', '3124556066');
+SELECT 'Alexandra', 'Lor', '312455', 'bogota', 'bella vista', 'lopez', 'lopez', '3123556069'
+WHERE NOT EXISTS (SELECT 1 FROM student WHERE document_number = '3123556069');
+
 INSERT INTO student (first_name, second_name, phone, city, address, surname, second_surname, document_number)
-VALUES ('camilo', 'Lor', '312455', 'bogota', 'bella vista', 'lopez', 'lopez', '3124556065');
+SELECT 'Sara', 'Lor', '312455', 'bogota', 'bella vista', 'lopez', 'lopez', '3123556067'
+WHERE NOT EXISTS (SELECT 1 FROM student WHERE document_number = '3123556067');
+
 INSERT INTO student (first_name, second_name, phone, city, address, surname, second_surname, document_number)
-VALUES ('johana', 'Lor', '312455', 'bogota', 'bella vista', 'lopez', 'lopez', '3124556064');
+SELECT 'Valentina', 'Lor', '312455', 'bogota', 'bella vista', 'lopez', 'lopez', '3123556066'
+WHERE NOT EXISTS (SELECT 1 FROM student WHERE document_number = '3123556066');
+
 INSERT INTO student (first_name, second_name, phone, city, address, surname, second_surname, document_number)
-VALUES ('jaider', 'Lor', '312455', 'bogota', 'bella vista', 'lopez', 'lopez', '3124556063');
+SELECT 'Mileidy', 'Lor', '312455', 'bogota', 'bella vista', 'lopez', 'lopez', '3123556065'
+WHERE NOT EXISTS (SELECT 1 FROM student WHERE document_number = '3123556065');
+
 INSERT INTO student (first_name, second_name, phone, city, address, surname, second_surname, document_number)
-VALUES ('cristian', 'Lor', '312455', 'bogota', 'bella vista', 'lopez', 'lopez', '3124556062');
+SELECT 'Genesis', 'Lor', '312455', 'bogota', 'bella vista', 'lopez', 'lopez', '3123556064'
+WHERE NOT EXISTS (SELECT 1 FROM student WHERE document_number = '3123556064');
+
 INSERT INTO student (first_name, second_name, phone, city, address, surname, second_surname, document_number)
-VALUES ('heidy', 'Lor', '312455', 'bogota', 'bella vista', 'lopez', 'lopez', '3124556061');
+SELECT 'Nahomi', 'Lor', '312455', 'bogota', 'bella vista', 'lopez', 'lopez', '3123556063'
+WHERE NOT EXISTS (SELECT 1 FROM student WHERE document_number = '3123556063');
+
 INSERT INTO student (first_name, second_name, phone, city, address, surname, second_surname, document_number)
-VALUES ('alesix', 'Lor', '312455', 'bogota', 'bella vista', 'lopez', 'lopez', '3124556060');
+SELECT 'Isabella', 'Lor', '312455', 'bogota', 'bella vista', 'lopez', 'lopez', '3123556062'
+WHERE NOT EXISTS (SELECT 1 FROM student WHERE document_number = '3123556062');
+
 INSERT INTO student (first_name, second_name, phone, city, address, surname, second_surname, document_number)
-VALUES ('Alexandra', 'Lor', '312455', 'bogota', 'bella vista', 'lopez', 'lopez', '3124556069');
+SELECT 'Allinson', 'Lor', '312455', 'bogota', 'bella vista', 'lopez', 'lopez', '3123556061'
+WHERE NOT EXISTS (SELECT 1 FROM student WHERE document_number = '3123556061');
+
 INSERT INTO student (first_name, second_name, phone, city, address, surname, second_surname, document_number)
-VALUES ('sara', 'Lor', '312455', 'bogota', 'bella vista', 'lopez', 'lopez', '3124556059');
+SELECT 'Alexander', 'Lor', '312455', 'bogota', 'bella vista', 'lopez', 'lopez', '3123556060'
+WHERE NOT EXISTS (SELECT 1 FROM student WHERE document_number = '3123556060');
+
 INSERT INTO student (first_name, second_name, phone, city, address, surname, second_surname, document_number)
-VALUES ('Valentina', 'Lor', '312455', 'bogota', 'bella vista', 'lopez', 'lopez', '3124556058');
+SELECT 'Johana', 'Lor', '312455', 'bogota', 'bella vista', 'lopez', 'lopez', '3123555059'
+WHERE NOT EXISTS (SELECT 1 FROM student WHERE document_number = '3123555059');
+
 INSERT INTO student (first_name, second_name, phone, city, address, surname, second_surname, document_number)
-VALUES ('Genesis', 'Lor', '312455', 'bogota', 'bella vista', 'lopez', 'lopez', '3124556057');
+SELECT 'Francisca', 'Lor', '312455', 'bogota', 'bella vista', 'lopez', 'lopez', '3123555058'
+WHERE NOT EXISTS (SELECT 1 FROM student WHERE document_number = '3123555058');
+
 INSERT INTO student (first_name, second_name, phone, city, address, surname, second_surname, document_number)
-VALUES ('Nahomi', 'Lor', '312455', 'bogota', 'bella vista', 'lopez', 'lopez', '3124556056');
+SELECT 'Luis', 'Lor', '312455', 'bogota', 'bella vista', 'lopez', 'lopez', '3123555057'
+WHERE NOT EXISTS (SELECT 1 FROM student WHERE document_number = '3123555057');
+
 INSERT INTO student (first_name, second_name, phone, city, address, surname, second_surname, document_number)
-VALUES ('Mileidy', 'Lor', '312455', 'bogota', 'bella vista', 'lopez', 'lopez', '3124556055');
+SELECT 'Francisco', 'Lor', '312455', 'bogota', 'bella vista', 'lopez', 'lopez', '3123555056'
+WHERE NOT EXISTS (SELECT 1 FROM student WHERE document_number = '3123555056');
+
 INSERT INTO student (first_name, second_name, phone, city, address, surname, second_surname, document_number)
-VALUES ('Sofia', 'Lor', '312455', 'bogota', 'bella vista', 'lopez', 'lopez', '3124556054');
+SELECT 'Mirian', 'Lor', '312455', 'bogota', 'bella vista', 'lopez', 'lopez', '3123555055'
+WHERE NOT EXISTS (SELECT 1 FROM student WHERE document_number = '3123555055');
+
 INSERT INTO student (first_name, second_name, phone, city, address, surname, second_surname, document_number)
-VALUES ('Salome', 'Lor', '312455', 'bogota', 'bella vista', 'lopez', 'lopez', '3124556053');
+SELECT 'Celina', 'Lor', '312455', 'bogota', 'bella vista', 'lopez', 'lopez', '3123555054'
+WHERE NOT EXISTS (SELECT 1 FROM student WHERE document_number = '3123555054');
+
 INSERT INTO student (first_name, second_name, phone, city, address, surname, second_surname, document_number)
-VALUES ('Brillit', 'Lor', '312455', 'bogota', 'bella vista', 'lopez', 'lopez', '3124556052');
+SELECT 'Rodolfo', 'Lor', '312455', 'bogota', 'bella vista', 'lopez', 'lopez', '3123555053'
+WHERE NOT EXISTS (SELECT 1 FROM student WHERE document_number = '3123555053');
+
 INSERT INTO student (first_name, second_name, phone, city, address, surname, second_surname, document_number)
-VALUES ('Luisa', 'Lor', '312455', 'bogota', 'bella vista', 'lopez', 'lopez', '3124556051');
+SELECT 'Cesar', 'Lor', '312455', 'bogota', 'bella vista', 'lopez', 'lopez', '3123555052'
+WHERE NOT EXISTS (SELECT 1 FROM student WHERE document_number = '3123555052');
+
 INSERT INTO student (first_name, second_name, phone, city, address, surname, second_surname, document_number)
-VALUES ('Daniel', 'Lor', '312455', 'bogota', 'bella vista', 'lopez', 'lopez', '3124556050');
+SELECT 'Julio', 'Lor', '312455', 'bogota', 'bella vista', 'lopez', 'lopez', '3123555051'
+WHERE NOT EXISTS (SELECT 1 FROM student WHERE document_number = '3123555051');
+
 INSERT INTO student (first_name, second_name, phone, city, address, surname, second_surname, document_number)
-VALUES ('Sandra', 'Lor', '312455', 'bogota', 'bella vista', 'lopez', 'lopez', '3124556049');
+SELECT 'Saida', 'Lor', '312455', 'bogota', 'bella vista', 'lopez', 'lopez', '3123555050'
+WHERE NOT EXISTS (SELECT 1 FROM student WHERE document_number = '3123555050');
+
 INSERT INTO student (first_name, second_name, phone, city, address, surname, second_surname, document_number)
-VALUES ('Tatiana', 'Lor', '312455', 'bogota', 'bella vista', 'lopez', 'lopez', '3124556048');
+SELECT 'Aleida', 'Lor', '312455', 'bogota', 'bella vista', 'lopez', 'lopez', '3123555049'
+WHERE NOT EXISTS (SELECT 1 FROM student WHERE document_number = '3123555049');
+
 INSERT INTO student (first_name, second_name, phone, city, address, surname, second_surname, document_number)
-VALUES ('David', 'Lor', '312455', 'bogota', 'bella vista', 'lopez', 'lopez', '3124556047');
+SELECT 'Marcos', 'Lor', '312455', 'bogota', 'bella vista', 'lopez', 'lopez', '3123555048'
+WHERE NOT EXISTS (SELECT 1 FROM student WHERE document_number = '3123555048');
+
 INSERT INTO student (first_name, second_name, phone, city, address, surname, second_surname, document_number)
-VALUES ('Marly', 'Lor', '312455', 'bogota', 'bella vista', 'lopez', 'lopez', '3124556046');
+SELECT 'Alveiro', 'Lor', '312455', 'bogota', 'bella vista', 'lopez', 'lopez', '3123555047'
+WHERE NOT EXISTS (SELECT 1 FROM student WHERE document_number = '3123555047');
+
 INSERT INTO student (first_name, second_name, phone, city, address, surname, second_surname, document_number)
-VALUES ('Gerson', 'Lor', '312455', 'bogota', 'bella vista', 'lopez', 'lopez', '3124556045');
+SELECT 'Milton', 'Lor', '312455', 'bogota', 'bella vista', 'lopez', 'lopez', '3123555046'
+WHERE NOT EXISTS (SELECT 1 FROM student WHERE document_number = '3123555046');
+
 INSERT INTO student (first_name, second_name, phone, city, address, surname, second_surname, document_number)
-VALUES ('Michell', 'Lor', '312455', 'bogota', 'bella vista', 'lopez', 'lopez', '3124556044');
+SELECT 'Jairo', 'Lor', '312455', 'bogota', 'bella vista', 'lopez', 'lopez', '3123555045'
+WHERE NOT EXISTS (SELECT 1 FROM student WHERE document_number = '3123555045');
+
 INSERT INTO student (first_name, second_name, phone, city, address, surname, second_surname, document_number)
-VALUES ('Denise', 'Lor', '312455', 'bogota', 'bella vista', 'lopez', 'lopez', '3124556043');
+SELECT 'Kelly', 'Lor', '312455', 'bogota', 'bella vista', 'lopez', 'lopez', '3123555044'
+WHERE NOT EXISTS (SELECT 1 FROM student WHERE document_number = '3123555044');
+
 INSERT INTO student (first_name, second_name, phone, city, address, surname, second_surname, document_number)
-VALUES ('Kely', 'Lor', '312455', 'bogota', 'bella vista', 'lopez', 'lopez', '3124556042');
+SELECT 'Michell', 'Lor', '312455', 'bogota', 'bella vista', 'lopez', 'lopez', '3123555043'
+WHERE NOT EXISTS (SELECT 1 FROM student WHERE document_number = '3123555043');
+
 INSERT INTO student (first_name, second_name, phone, city, address, surname, second_surname, document_number)
-VALUES ('Milton', 'Lor', '312455', 'bogota', 'bella vista', 'lopez', 'lopez', '3124556041');
+SELECT 'Karen', 'Lor', '312455', 'bogota', 'bella vista', 'lopez', 'lopez', '3123555042'
+WHERE NOT EXISTS (SELECT 1 FROM student WHERE document_number = '3123555042');
+
+INSERT INTO student (first_name, second_name, phone, city, address, surname, second_surname, document_number)
+SELECT 'Sandra', 'Lor', '312455', 'bogota', 'bella vista', 'lopez', 'lopez', '3123555041'
+WHERE NOT EXISTS (SELECT 1 FROM student WHERE document_number = '3123555041');
+
+INSERT INTO student (first_name, second_name, phone, city, address, surname, second_surname, document_number)
+SELECT 'Denise', 'Lor', '312455', 'bogota', 'bella vista', 'lopez', 'lopez', '3123555040'
+WHERE NOT EXISTS (SELECT 1 FROM student WHERE document_number = '3123555040');
