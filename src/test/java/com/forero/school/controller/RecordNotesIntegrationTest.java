@@ -1,4 +1,4 @@
-package com.forero.school.RegisterController;
+package com.forero.school.controller;
 
 import com.forero.school.BaseIT;
 import org.junit.jupiter.api.Test;

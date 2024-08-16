@@ -123,6 +123,9 @@ public class MySQLRepositoryServiceImpl implements RepositoryService {
     @Override
     public List<Registered> getAllRegistered() {
         List<RegisteredEntity> registeredEntityList = this.registeredRepository.findAll();
+        if (registeredEntityList.isEmpty()) {
+            throw new RepositoryException(CodeException.EMPTY_LIST, null, "records");
+        }
         return registeredEntityList
                 .stream()
                 .map(this.registeredMapper::toModel)
