@@ -17,8 +17,12 @@ public class RegisterController implements UploadNotesApi {
     private final RegisterUseCase registerUseCase;
 
     @Override
-    public ResponseEntity<Void> recordNotes(final Integer subjectId, final MultipartFile file) throws IOException {
-        this.registerUseCase.registerNotes(subjectId, file);
+    public ResponseEntity<Void> recordNotes(final Integer subjectId, final MultipartFile file) {
+        try {
+            this.registerUseCase.registerNotes(subjectId, file);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
         return ResponseEntity.ok().build();
     }
 

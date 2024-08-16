@@ -15,6 +15,10 @@ import com.forero.school.infraestructure.repository.entity.SubjectEntity;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.pdfbox.pdmodel.PDDocument;
+import org.apache.pdfbox.pdmodel.PDPage;
+import org.apache.pdfbox.pdmodel.PDPageContentStream;
+import org.apache.pdfbox.pdmodel.font.PDType1Font;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.CellType;
 import org.apache.poi.ss.usermodel.Row;
@@ -24,6 +28,7 @@ import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.stereotype.Repository;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.math.BigDecimal;
@@ -164,7 +169,6 @@ public class MySQLRepositoryServiceImpl implements RepositoryService {
                 BigDecimal totalPoints = BigDecimal.valueOf(100); // Total posible de puntos
                 BigDecimal average = sumOfNotes.divide(totalPoints, 2, RoundingMode.HALF_EVEN).multiply(BigDecimal.valueOf(100));
 
-
                 RegisteredEntity registeredEntity = new RegisteredEntity();
                 registeredEntity.setStudent(studentEntity);
                 registeredEntity.setSubject(subjectEntity);
@@ -183,6 +187,109 @@ public class MySQLRepositoryServiceImpl implements RepositoryService {
         }
         return BigDecimal.valueOf(cell.getNumericCellValue());
     }
+
+    @Override
+    public byte[] generatePdf() {
+        // Obtener la lista de entidades registradas desde la base de datos
+        List<RegisteredEntity> registeredEntityList = this.registeredRepository.findAll();
+        List<Registered> registeredList = registeredEntityList
+                .stream()
+                .map(this.registeredMapper::toModel)
+                .toList();
+
+        try (PDDocument document = new PDDocument(); ByteArrayOutputStream baos = new ByteArrayOutputStream()) {
+            PDPage page = new PDPage();
+            document.addPage(page);
+            PDPageContentStream contentStream = new PDPageContentStream(document, page);
+
+            try {
+                // Configurar el título
+                contentStream.setFont(PDType1Font.HELVETICA_BOLD, 16);
+                contentStream.beginText();
+                contentStream.newLineAtOffset(220, 750); // Posición del título
+                contentStream.showText("Lista de Registros");
+                contentStream.endText();
+
+                // Configurar el contenido de la tabla
+                float marginLeft = 50;
+                float marginTop = 700;
+                float rowHeight = 20;
+                float tableWidth = 500;
+                float cellMargin = 5;
+
+                // Encabezados de la tabla
+                String[] headers = {"ID", "Promedio", "Documento", "Nombre", "Nota 1", "Nota 2", "Nota 3", "Materia"};
+
+                // Dibujar los encabezados
+                contentStream.setFont(PDType1Font.HELVETICA_BOLD, 12);
+                contentStream.beginText();
+                contentStream.newLineAtOffset(marginLeft, marginTop);
+
+                for (String header : headers) {
+                    contentStream.showText(header);
+                    contentStream.newLineAtOffset(tableWidth / headers.length, 0);
+                }
+
+                contentStream.endText();
+
+                // Dibujar las filas de datos
+                contentStream.setFont(PDType1Font.HELVETICA, 10);
+                marginTop -= rowHeight;
+
+                for (Registered registered : registeredList) {
+                    if (marginTop < 50) {
+                        // Cerrar el contentStream actual antes de añadir una nueva página
+                        contentStream.close();
+                        page = new PDPage();
+                        document.addPage(page);
+                        contentStream = new PDPageContentStream(document, page);
+                        marginTop = 700;
+                    }
+
+                    contentStream.beginText();
+                    contentStream.newLineAtOffset(marginLeft, marginTop);
+
+                    contentStream.showText(String.valueOf(registered.getId()));
+                    contentStream.newLineAtOffset(tableWidth / headers.length, 0);
+
+                    contentStream.showText(String.valueOf(registered.getAverage()));
+                    contentStream.newLineAtOffset(tableWidth / headers.length, 0);
+
+                    contentStream.showText(registered.getStudent().getDocumentNumber());
+                    contentStream.newLineAtOffset(tableWidth / headers.length, 0);
+
+                    contentStream.showText(registered.getStudent().getFirstName());
+                    contentStream.newLineAtOffset(tableWidth / headers.length, 0);
+
+                    contentStream.showText(String.valueOf(registered.getNota1()));
+                    contentStream.newLineAtOffset(tableWidth / headers.length, 0);
+
+                    contentStream.showText(String.valueOf(registered.getNota2()));
+                    contentStream.newLineAtOffset(tableWidth / headers.length, 0);
+
+                    contentStream.showText(String.valueOf(registered.getNota3()));
+                    contentStream.newLineAtOffset(tableWidth / headers.length, 0);
+
+                    contentStream.showText(registered.getSubject().getName());
+
+                    contentStream.endText();
+                    marginTop -= rowHeight;
+                }
+
+            } finally {
+                contentStream.close();
+            }
+
+            document.save(baos);
+            return baos.toByteArray();
+
+        } catch (IOException e) {
+            // Manejo de la excepción
+            // Puedes lanzar una excepción personalizada o devolver un valor por defecto
+            throw new RuntimeException("Error al generar el PDF", e);
+        }
+    }
+
 
 }
 

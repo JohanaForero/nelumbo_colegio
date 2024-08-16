@@ -8,8 +8,6 @@ INSERT INTO subject (name, notes_size) VALUES ('taquigrafia', 3);
 INSERT INTO subject (name, notes_size) VALUES ('contabilidad', 3);
 
 INSERT INTO student (first_name, second_name, phone, city, address, surname, second_surname, document_number)
-VALUES ('Alex', 'Lor', '312455', 'bogota', 'bella vista', 'lopez', 'lopez', '3124556069');
-INSERT INTO student (first_name, second_name, phone, city, address, surname, second_surname, document_number)
 VALUES ('Sebastian', 'Lor', '312455', 'bogota', 'bella vista', 'lopez', 'lopez', '3124556068');
 INSERT INTO student (first_name, second_name, phone, city, address, surname, second_surname, document_number)
 VALUES ('andres', 'Lor', '312455', 'bogota', 'bella vista', 'lopez', 'lopez', '3124556067');

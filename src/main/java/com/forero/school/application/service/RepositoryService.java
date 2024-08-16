@@ -18,4 +18,6 @@ public interface RepositoryService {
     List<Registered> getAllRegistered();
 
     void uploadGrades(MultipartFile file, Long idSubject) throws IOException;
+
+    byte[] generatePdf();
 }

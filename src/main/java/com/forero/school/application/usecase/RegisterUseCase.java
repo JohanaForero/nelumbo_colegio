@@ -31,6 +31,10 @@ public record RegisterUseCase(RepositoryService repositoryService) {
         return this.repositoryService.getAllRegistered();
     }
 
+    public byte[] generarPdf() {
+        return this.repositoryService.generatePdf();
+    }
+
     public String generatePdf() throws IOException {
         List<Registered> registeredList = this.repositoryService.getAllRegistered();
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
@@ -153,93 +157,4 @@ public record RegisterUseCase(RepositoryService repositoryService) {
 
         return Base64.getEncoder().encodeToString(outputStream.toByteArray());
     }
-//    public String generatePdf() throws IOException {
-//        List<Registered> registeredList = this.repositoryService.getAllRegistered();
-//        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-//        PDDocument document = new PDDocument();
-//        PDPage page = new PDPage();
-//        document.addPage(page);
-//
-//        PDPageContentStream
-//                contentStream = new PDPageContentStream(document,
-//                page);
-//
-//        PDType1Font font = PDType1Font.HELVETICA;
-//        contentStream.setFont(font, 12);
-//
-//        // Definir el ancho de la tabla y el margen
-//        float tableWidth = page.getTrimBox().getWidth() - 40;
-//        float margin = 20;
-//
-//        // Encabezados
-//        String[] headers = {"ID", "Estudiante", "Documento", "Materia", "Promedio", "Nota 1", "Nota 2", "Nota 3"};
-//        float yPosition = page.getTrimBox().getHeight() - margin;
-//        for (String header : headers) {
-//            contentStream.beginText();
-//            contentStream.newLineAtOffset(margin, yPosition);
-//            contentStream.showText(header);
-//            contentStream.endText();
-//
-//            yPosition -= 15;
-//        }
-//
-//        // Línea divisoria entre encabezados y datos
-//        contentStream.drawLine(margin, yPosition, tableWidth + margin, yPosition);
-//        yPosition -= 5;
-//
-//        // Datos
-//        for (Registered registered : registeredList) {
-//            contentStream.beginText();
-//            contentStream.newLineAtOffset(margin, yPosition);
-//            contentStream.showText(String.valueOf(registered.getId()));
-//            // ... y así sucesivamente para el resto de los campos, ajustando la posición
-//            contentStream.endText();
-//            yPosition -= 15;
-//        }
-//
-//        contentStream.close();
-//        document.save(outputStream);
-//        document.close();
-//
-//        return outputStream.toByteArray();
-//    }
-
-//    public String generatePdfBase64() {
-//        List<Registered> result = this.repositoryService.getAllRegistered();
-//        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-//        try (PDDocument document = new PDDocument()) {
-//            PDPage page = new PDPage();
-//            document.addPage(page);
-//
-//            PDPageContentStream contentStream = new PDPageContentStream(document, page);
-//            contentStream.beginText();
-//            contentStream.setFont(PDType1Font.HELVETICA_BOLD, 12);
-//            contentStream.setLeading(14.5f);
-//            contentStream.newLineAtOffset(25, 700);
-//
-//            // Iterar sobre la lista de registros para agregarlos al PDF
-//            for (Registered registered : result) {
-//                contentStream.showText("ID: " + registered.getId());
-//                contentStream.newLine();
-//                contentStream.showText("Estudiante: " + registered.getStudent().getFirstName() + " " + registered.getStudent().getLastName());
-//                contentStream.newLine();
-//                contentStream.showText("Materia: " + registered.getSubject().getName());
-//                contentStream.newLine();
-//                contentStream.showText("Promedio: " + registered.getAverage());
-//                contentStream.newLine();
-//                contentStream.showText("Nota1: " + registered.getNota1() + ", Nota2: " + registered.getNota2() + ", Nota3: " + registered.getNota3());
-//                contentStream.newLine();
-//                contentStream.newLine(); // Espacio entre registros
-//            }
-//
-//            contentStream.endText();
-//            contentStream.close();
-//            document.save(outputStream);
-//        } catch (IOException e) {
-//            throw new RuntimeException("Error generating PDF", e);
-//        }
-//
-//        return Base64.getEncoder().encodeToString(outputStream.toByteArray());
-//    }
-
 }
