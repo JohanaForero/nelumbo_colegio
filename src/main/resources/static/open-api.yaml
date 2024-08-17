@@ -102,13 +102,16 @@ paths:
             schema:
               type: object
               properties:
-                file:
-                  type: string
-                  format: binary
+                files:
+                  type: array
+                  items:
+                    type: string
+                    format: binary
+                  description: Files to upload
               required:
-                - file
+                - files
       responses:
-        200:
+        204:
           description: Student grades were uploaded successfully
         400:
           description: Bad Request - If the resource is misspelled (badly constructed URI) or if the data in the request is not correct.

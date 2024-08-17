@@ -1,4 +1,4 @@
-package com.forero.school.controller;
+package com.forero.school.infraestructure.controller;
 
 import com.forero.school.BaseIT;
 import org.junit.jupiter.api.Test;
@@ -7,7 +7,7 @@ import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 
-public class RecordNotesIntegrationTest extends BaseIT {
+class RecordNotesIntegrationTest extends BaseIT {
     private static final String BASE_PATH = "/school/";
 
     private int studentId(final String documentNumber) {

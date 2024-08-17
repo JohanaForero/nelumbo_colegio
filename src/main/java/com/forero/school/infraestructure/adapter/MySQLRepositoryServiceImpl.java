@@ -95,7 +95,8 @@ public class MySQLRepositoryServiceImpl implements RepositoryService {
 
     @Override
     @Transactional
-    public void uploadGrades(final MultipartFile file, final int idSubject) {
+    public void uploadGrades(final MultipartFile[] files, final int idSubject) {
+        final MultipartFile file = files[0];
         try (final InputStream is = file.getInputStream();
              final Workbook workbook = new XSSFWorkbook(is)) {
 
@@ -104,6 +105,10 @@ public class MySQLRepositoryServiceImpl implements RepositoryService {
 
             if (iterator.hasNext()) {
                 iterator.next();
+            }
+
+            if (!iterator.hasNext()) {
+                throw new RepositoryException(CodeException.INVALID_PARAMETERS, null, "file");
             }
 
             final Set<String> studentIdentifications = new HashSet<>();
@@ -139,14 +144,16 @@ public class MySQLRepositoryServiceImpl implements RepositoryService {
 
                 studentIdentifications.add(studentIdentification);
 
+                // Obtener y validar las notas
                 final BigDecimal noteOne = this.getBigDecimalFromCell(row.getCell(1));
                 final BigDecimal noteTwo = this.getBigDecimalFromCell(row.getCell(2));
                 final BigDecimal noteThree = this.getBigDecimalFromCell(row.getCell(3));
-                final String finalStudentIdentification = studentIdentification;
-                final StudentEntity studentEntity = this.getSubject(finalStudentIdentification);
+                this.validateNotes(noteOne, noteTwo, noteThree);
 
+                final StudentEntity studentEntity = this.getSubject(studentIdentification);
                 final SubjectEntity subjectEntity = this.getSubject(idSubject);
                 final BigDecimal average = this.calculateAverage(noteOne, noteTwo, noteThree);
+
                 final RegisteredEntity existingRegistration =
                         existingRegistrations.get(studentIdentification + "_" + idSubject);
 
@@ -172,6 +179,21 @@ public class MySQLRepositoryServiceImpl implements RepositoryService {
         }
     }
 
+    private void validateNotes(final BigDecimal noteOne, final BigDecimal noteTwo, final BigDecimal noteThree) {
+        this.validateSingleNote(noteOne);
+        this.validateSingleNote(noteTwo);
+        this.validateSingleNote(noteThree);
+    }
+
+    private void validateSingleNote(final BigDecimal note) {
+        if (note == null) {
+            throw new RepositoryException(CodeException.INVALID_PARAMETERS, null, "note");
+        }
+
+        if (note.compareTo(BigDecimal.ONE) < 0 || note.compareTo(BigDecimal.valueOf(100)) > 0) {
+            throw new RepositoryException(CodeException.INVALID_NOTE, null);
+        }
+    }
 
     private SubjectEntity getSubject(final int subjectId) {
         final SubjectEntity subjectEntity = this.subjectRepository.findById((long) subjectId).orElse(null);
@@ -192,12 +214,17 @@ public class MySQLRepositoryServiceImpl implements RepositoryService {
         return summationNotes.divide(totalNotes, 2, RoundingMode.HALF_EVEN);
     }
 
-
-    public BigDecimal getBigDecimalFromCell(final Cell cell) {
+    private BigDecimal getBigDecimalFromCell(final Cell cell) {
         if (cell == null || cell.getCellType() != CellType.NUMERIC) {
-            return null;
+            throw new RepositoryException(CodeException.INVALID_PARAMETERS, null, "note");
         }
-        return BigDecimal.valueOf(cell.getNumericCellValue());
+
+        final BigDecimal note = BigDecimal.valueOf(cell.getNumericCellValue());
+        if (note.compareTo(BigDecimal.ONE) < 0 || note.compareTo(BigDecimal.valueOf(100)) > 0) {
+            throw new RepositoryException(CodeException.INVALID_NOTE, null);
+        }
+
+        return note;
     }
 
     @Override

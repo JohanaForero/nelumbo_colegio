@@ -1,4 +1,4 @@
-package com.forero.school.controller;
+package com.forero.school.infraestructure.controller;
 
 import com.forero.school.BaseIT;
 import com.forero.school.openapi.model.RegisteredResponseDtoDto;
@@ -36,8 +36,9 @@ class GetAllRegistrationsIntegrationTest extends BaseIT {
     @Test
     void test_GetAllRegistrations_withRequestValid_shouldReturnListOfRegisteredResponseDtos() throws Exception {
         //Given
-        this.jdbcTemplate.update("INSERT INTO subject (name, notes_size)", " VALUES (?, ?)", "español2", 3);
-        this.jdbcTemplate.update("INSERT INTO subject (name, notes_size)", " VALUES (?, ?)", "matematicas1", 3);
+        this.jdbcTemplate.update("INSERT INTO subject (name, notes_size) VALUES (?, ?)", "español2", 3);
+        this.jdbcTemplate.update("INSERT INTO subject (name, notes_size) VALUES (?, ?)", "matematicas1", 3);
+
         this.jdbcTemplate.update("INSERT INTO student (address, city, document_number, first_name, phone, " +
                         "second_name, second_surname, surname)", " VALUES (?, ?, ?, ?, ?, ?, ?, ?)", "VELLA-VISTA", "BOGOTA",
                 "109234", "ALEX", "3214555", "Alvares", "lopex", "Sara");

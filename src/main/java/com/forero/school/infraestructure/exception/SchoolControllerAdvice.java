@@ -8,6 +8,7 @@ import com.forero.school.infraestructure.controller.RegisterController;
 import com.forero.school.infraestructure.controller.SubjectController;
 import com.forero.school.openapi.model.ErrorObjectDto;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.dao.InvalidDataAccessApiUsageException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MissingServletRequestParameterException;
@@ -29,8 +30,9 @@ public class SchoolControllerAdvice {
             new AbstractMap.SimpleEntry<>(CodeException.EMPTY_LIST, HttpStatus.NOT_FOUND),
             new AbstractMap.SimpleEntry<>(CodeException.INVALID_PARAMETERS, HttpStatus.BAD_REQUEST),
             new AbstractMap.SimpleEntry<>(CodeException.STUDENT_NOT_FOUND, HttpStatus.BAD_REQUEST),
+            new AbstractMap.SimpleEntry<>(CodeException.INVALID_NOTE, HttpStatus.BAD_REQUEST),
             new AbstractMap.SimpleEntry<>(CodeException.SUBJECT_NOT_FOUND, HttpStatus.BAD_REQUEST),
-            new AbstractMap.SimpleEntry<>(CodeException.RESOURCE_NOT_FOUND, HttpStatus.BAD_REQUEST),
+            new AbstractMap.SimpleEntry<>(CodeException.DUPLICATE_STUDENT_IN_EXCEL, HttpStatus.BAD_REQUEST),
             new AbstractMap.SimpleEntry<>(CodeException.PDF_GENERATION_ERROR, HttpStatus.BAD_REQUEST),
             new AbstractMap.SimpleEntry<>(CodeException.INTERNAL_SERVER_ERROR, HttpStatus.INTERNAL_SERVER_ERROR)
     );
@@ -54,6 +56,20 @@ public class SchoolControllerAdvice {
             final MissingServletRequestPartException missingServletRequestPartException) {
         final CodeException codeException = CodeException.INVALID_PARAMETERS;
         final String paramName = missingServletRequestPartException.getRequestPartName();
+
+        final ErrorObjectDto errorObjectDto = new ErrorObjectDto();
+        errorObjectDto.message(String.format(codeException.getMessageFormat(), paramName));
+
+        final HttpStatus httpStatus = HTTP_STATUS_BY_CODE_EXCEPTION.getOrDefault(codeException, HttpStatus.NOT_EXTENDED);
+
+        return new ResponseEntity<>(errorObjectDto, httpStatus);
+    }
+
+    @ExceptionHandler(InvalidDataAccessApiUsageException.class)
+    public ResponseEntity<ErrorObjectDto> handlerException(final InvalidDataAccessApiUsageException
+                                                                   invalidDataAccessApiUsageException) {
+        final CodeException codeException = CodeException.INVALID_PARAMETERS;
+        final String paramName = "you are uploading at least one file and";
 
         final ErrorObjectDto errorObjectDto = new ErrorObjectDto();
         errorObjectDto.message(String.format(codeException.getMessageFormat(), paramName));

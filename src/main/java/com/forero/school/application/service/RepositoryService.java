@@ -15,7 +15,7 @@ public interface RepositoryService {
 
     List<Registered> getAllRegistered();
 
-    void uploadGrades(MultipartFile file, int idSubject);
+    void uploadGrades(MultipartFile[] file, int idSubject);
 
     byte[] generatePdf();
 }
