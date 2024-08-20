@@ -200,15 +200,16 @@ public class MySQLRepositoryServiceImpl implements RepositoryService {
     }
 
     @Override
-    public byte[] generatePdf() {
-        final List<RegisteredEntity> registeredEntityList = this.registeredRepository.findAll();
+    public byte[] generatePdf(final int subjectId) {
+        final List<RegisteredEntity> registeredEntityList =
+                this.registeredRepository.findAllBySubjectIdOrderByAverageDesc((long) subjectId);
         if (registeredEntityList.isEmpty()) {
             throw new RepositoryException(CodeException.EMPTY_LIST, null, "records");
         }
-        final List<Registered> registeredList = registeredEntityList
-                .stream()
-                .map(this.registeredMapper::toModel)
-                .toList();
+//        final List<Registered> registeredList = registeredEntityList
+//                .stream()
+//                .map(this.registeredMapper::toEntityToModel)
+//                .toList();
 
         try (final PDDocument document = new PDDocument(); final ByteArrayOutputStream baos = new ByteArrayOutputStream()) {
             PDPage page = new PDPage();
@@ -227,8 +228,8 @@ public class MySQLRepositoryServiceImpl implements RepositoryService {
                 final float rowHeight = 20;
                 final float tableWidth = 500;
 
-                final String[] headers = {"Registros", "Promedio", "Documento", "Nombre", "Nota 1", "Nota 2", "Nota 3",
-                        "Materia"};
+                final String[] headers = {"studentId", "firstName", "surname", "secondSurname", "secondName", "documentNumber",
+                        "average"};
 
                 contentStream.setFont(PDType1Font.HELVETICA_BOLD, 12);
                 contentStream.beginText();
@@ -244,7 +245,7 @@ public class MySQLRepositoryServiceImpl implements RepositoryService {
                 contentStream.setFont(PDType1Font.HELVETICA, 10);
                 marginTop -= rowHeight;
 
-                for (final Registered registered : registeredList) {
+                for (final RegisteredEntity registered : registeredEntityList) {
                     if (marginTop < 50) {
                         contentStream.close();
                         page = new PDPage();
@@ -256,28 +257,26 @@ public class MySQLRepositoryServiceImpl implements RepositoryService {
                     contentStream.beginText();
                     contentStream.newLineAtOffset(marginLeft, marginTop);
 
-                    contentStream.showText(String.valueOf(registered.getId()));
-                    contentStream.newLineAtOffset(tableWidth / headers.length, 0);
-
-                    contentStream.showText(String.valueOf(registered.getAverage()));
-                    contentStream.newLineAtOffset(tableWidth / headers.length, 0);
-
-                    contentStream.showText(registered.getStudent().getDocumentNumber());
+                    contentStream.showText(String.valueOf(registered.getStudent().getId()));
                     contentStream.newLineAtOffset(tableWidth / headers.length, 0);
 
                     contentStream.showText(registered.getStudent().getFirstName());
                     contentStream.newLineAtOffset(tableWidth / headers.length, 0);
 
-                    contentStream.showText(String.valueOf(registered.getNota1()));
+                    contentStream.showText(registered.getStudent().getSurname());
                     contentStream.newLineAtOffset(tableWidth / headers.length, 0);
 
-                    contentStream.showText(String.valueOf(registered.getNota2()));
+                    contentStream.showText(registered.getStudent().getSecondSurname());
                     contentStream.newLineAtOffset(tableWidth / headers.length, 0);
 
-                    contentStream.showText(String.valueOf(registered.getNota3()));
+                    contentStream.showText(registered.getStudent().getSecondName());
                     contentStream.newLineAtOffset(tableWidth / headers.length, 0);
 
-                    contentStream.showText(registered.getSubject().getName());
+                    contentStream.showText(registered.getStudent().getDocumentNumber());
+                    contentStream.newLineAtOffset(tableWidth / headers.length, 0);
+
+                    contentStream.showText(String.valueOf(registered.getAverage()));
+                    contentStream.newLineAtOffset(tableWidth / headers.length, 0);
 
                     contentStream.endText();
                     marginTop -= rowHeight;

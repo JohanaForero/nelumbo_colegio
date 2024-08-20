@@ -39,7 +39,7 @@ public record RegisterUseCase(RepositoryService repositoryService) {
         return this.repositoryService.getAllRegistered(subjectId);
     }
 
-    public byte[] generatePDF() {
-        return this.repositoryService.generatePdf();
+    public byte[] generatePDF(final int subjectId) {
+        return this.repositoryService.generatePdf(subjectId);
     }
 }

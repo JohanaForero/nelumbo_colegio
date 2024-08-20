@@ -17,5 +17,5 @@ public interface RepositoryService {
 
     void uploadGrades(MultipartFile[] file, int idSubject);
 
-    byte[] generatePdf();
+    byte[] generatePdf(int subjectId);
 }

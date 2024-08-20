@@ -36,13 +36,20 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorObject'
-  /registered/generate-pdf:
+  /registered/generate-pdf/{subjectId}:
     get:
       tags:
         - Registered
-      summary: Generate a PDF with all registered records
-      description: Returns a PDF containing all registered records encoded in Base64.
+      summary: Generate a PDF with all registered records for a subject
+      description: Returns a PDF containing all registered records for a specific subject, encoded in Base64.
       operationId: generateAllRegisteredPdf
+      parameters:
+        - in: path
+          name: subjectId
+          required: true
+          schema:
+            type: integer
+          description: ID of the subject for which to generate the PDF
       responses:
         200:
           description: PDF encoded in Base64 with all registered records

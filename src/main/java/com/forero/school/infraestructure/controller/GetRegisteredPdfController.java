@@ -19,8 +19,8 @@ public class GetRegisteredPdfController implements RegisteredApi {
     private final RegisterUseCase registerUseCase;
 
     @Override
-    public ResponseEntity<Resource> generateAllRegisteredPdf() {
-        final byte[] pdfBytes = this.registerUseCase.generatePDF();
+    public ResponseEntity<Resource> generateAllRegisteredPdf(final Integer subjectId) {
+        final byte[] pdfBytes = this.registerUseCase.generatePDF(subjectId);
         final ByteArrayResource resource = new ByteArrayResource(pdfBytes);
         final HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_PDF);
@@ -30,4 +30,5 @@ public class GetRegisteredPdfController implements RegisteredApi {
                 .contentLength(pdfBytes.length)
                 .body(resource);
     }
+
 }
