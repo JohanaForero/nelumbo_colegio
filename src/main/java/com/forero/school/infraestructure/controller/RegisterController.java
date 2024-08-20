@@ -1,7 +1,7 @@
 package com.forero.school.infraestructure.controller;
 
 import com.forero.school.application.usecase.RegisterUseCase;
-import com.forero.school.openapi.api.UploadNotesApi;
+import com.forero.school.openapi.api.NotesApi;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -13,7 +13,7 @@ import java.util.List;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("${openapi.aPIDocumentation.base-path}")
-public class RegisterController implements UploadNotesApi {
+public class RegisterController implements NotesApi {
     private final RegisterUseCase registerUseCase;
 
     @Override

@@ -3,7 +3,7 @@ package com.forero.school.infraestructure.controller;
 import com.forero.school.application.usecase.RegisterUseCase;
 import com.forero.school.domain.model.Registered;
 import com.forero.school.infraestructure.mapper.RegisteredMapper;
-import com.forero.school.openapi.api.AllRegistrationsApi;
+import com.forero.school.openapi.api.RegistrationsApi;
 import com.forero.school.openapi.model.RegisteredResponseDtoDto;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -16,7 +16,7 @@ import java.util.List;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("${openapi.aPIDocumentation.base-path}")
-public class RecordsController implements AllRegistrationsApi {
+public class RecordsController implements RegistrationsApi {
     private final RegisterUseCase registerUseCase;
     private final RegisteredMapper registeredMapper;
 

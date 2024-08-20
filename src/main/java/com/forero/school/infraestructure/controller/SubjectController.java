@@ -3,7 +3,7 @@ package com.forero.school.infraestructure.controller;
 import com.forero.school.application.usecase.RegisterUseCase;
 import com.forero.school.domain.agregate.GeneralAggregate;
 import com.forero.school.infraestructure.mapper.SubjectMapper;
-import com.forero.school.openapi.api.SubjectsWithStudentsApi;
+import com.forero.school.openapi.api.SubjectsStudentsApi;
 import com.forero.school.openapi.model.SubjectResponseDtoDto;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -16,7 +16,7 @@ import java.util.List;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("${openapi.aPIDocumentation.base-path}")
-public class SubjectController implements SubjectsWithStudentsApi {
+public class SubjectController implements SubjectsStudentsApi {
     private final RegisterUseCase registerUseCase;
     private final SubjectMapper subjectMapper;
 

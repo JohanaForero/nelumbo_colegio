@@ -8,7 +8,7 @@ tags:
   - name: School
     description: Endpoints for students and notes
 paths:
-  /subjectsWithStudents:
+  /subjects_students:
     get:
       tags:
         - School
@@ -53,7 +53,7 @@ paths:
                 format: binary
         500:
           description: Internal server error
-  /allRegistrations:
+  /registrations:
     get:
       tags:
         - School
@@ -81,7 +81,7 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorObject'
-  /uploadNotes/{subjectId}:
+  /notes/{subjectId}:
     post:
       tags:
         - School
