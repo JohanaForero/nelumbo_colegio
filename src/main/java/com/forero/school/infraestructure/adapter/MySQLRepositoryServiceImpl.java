@@ -7,7 +7,6 @@ import com.forero.school.domain.exception.CodeException;
 import com.forero.school.domain.model.Registered;
 import com.forero.school.infraestructure.mapper.RegisteredMapper;
 import com.forero.school.infraestructure.repository.RegisteredRepository;
-import com.forero.school.infraestructure.repository.StudentRepository;
 import com.forero.school.infraestructure.repository.SubjectRepository;
 import com.forero.school.infraestructure.repository.entity.RegisteredEntity;
 import com.forero.school.infraestructure.repository.entity.StudentEntity;
@@ -46,7 +45,6 @@ import java.util.Set;
 @RequiredArgsConstructor
 public class MySQLRepositoryServiceImpl implements RepositoryService {
     private final SubjectRepository subjectRepository;
-    private final StudentRepository studentRepository;
     private final RegisteredRepository registeredRepository;
     private final RegisteredMapper registeredMapper;
 
@@ -206,10 +204,6 @@ public class MySQLRepositoryServiceImpl implements RepositoryService {
         if (registeredEntityList.isEmpty()) {
             throw new RepositoryException(CodeException.EMPTY_LIST, null, "records");
         }
-//        final List<Registered> registeredList = registeredEntityList
-//                .stream()
-//                .map(this.registeredMapper::toEntityToModel)
-//                .toList();
 
         try (final PDDocument document = new PDDocument(); final ByteArrayOutputStream baos = new ByteArrayOutputStream()) {
             PDPage page = new PDPage();
@@ -228,8 +222,8 @@ public class MySQLRepositoryServiceImpl implements RepositoryService {
                 final float rowHeight = 20;
                 final float tableWidth = 500;
 
-                final String[] headers = {"studentId", "firstName", "surname", "secondSurname", "secondName", "documentNumber",
-                        "average"};
+                final String[] headers = {"Estudiante", "Nombre1", "Nombre2", "Apellido1", "Apellido2",
+                        "Documento", "Promedio"};
 
                 contentStream.setFont(PDType1Font.HELVETICA_BOLD, 12);
                 contentStream.beginText();
@@ -263,13 +257,13 @@ public class MySQLRepositoryServiceImpl implements RepositoryService {
                     contentStream.showText(registered.getStudent().getFirstName());
                     contentStream.newLineAtOffset(tableWidth / headers.length, 0);
 
+                    contentStream.showText(registered.getStudent().getSecondName());
+                    contentStream.newLineAtOffset(tableWidth / headers.length, 0);
+
                     contentStream.showText(registered.getStudent().getSurname());
                     contentStream.newLineAtOffset(tableWidth / headers.length, 0);
 
                     contentStream.showText(registered.getStudent().getSecondSurname());
-                    contentStream.newLineAtOffset(tableWidth / headers.length, 0);
-
-                    contentStream.showText(registered.getStudent().getSecondName());
                     contentStream.newLineAtOffset(tableWidth / headers.length, 0);
 
                     contentStream.showText(registered.getStudent().getDocumentNumber());
