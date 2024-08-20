@@ -84,7 +84,7 @@ public class MySQLRepositoryServiceImpl implements RepositoryService {
         final List<RegisteredEntity> registeredEntityList =
                 this.registeredRepository.findAllBySubjectIdOrderByAverageDesc((long) subjectId);
         if (registeredEntityList.isEmpty()) {
-            throw new RepositoryException(CodeException.EMPTY_LIST, null, "records");
+            throw new RepositoryException(CodeException.EMPTY_LIST, null, ConstantsRepository.RECORDS);
         }
         return registeredEntityList
                 .stream()
@@ -103,7 +103,7 @@ public class MySQLRepositoryServiceImpl implements RepositoryService {
             final Iterator<Row> iterator = sheet.iterator();
 
             if (!iterator.hasNext()) {
-                throw new RepositoryException(CodeException.INVALID_PARAMETERS, null, "file");
+                throw new RepositoryException(CodeException.INVALID_PARAMETERS, null, ConstantsRepository.FILE);
             }
 
             iterator.next();
@@ -113,10 +113,11 @@ public class MySQLRepositoryServiceImpl implements RepositoryService {
 
             final List<RegisteredEntity> registrations = this.registeredRepository.findAllBySubjectId(idSubject);
             if (registrations.isEmpty()) {
-                throw new RepositoryException(CodeException.EMPTY_LIST, null, "records");
+                throw new RepositoryException(CodeException.EMPTY_LIST, null, ConstantsRepository.RECORDS);
             }
             for (final RegisteredEntity registration : registrations) {
-                final String key = registration.getStudent().getDocumentNumber() + "_" + idSubject;
+                final String key = registration.getStudent().getDocumentNumber()
+                        + ConstantsRepository.CONCATENATE + idSubject;
                 existingRegistrations.put(key, registration);
             }
 
@@ -125,7 +126,8 @@ public class MySQLRepositoryServiceImpl implements RepositoryService {
                 final String studentIdentification = this.getStudentIdentification(row.getCell(0));
 
                 if (studentIdentifications.contains(studentIdentification)) {
-                    throw new RepositoryException(CodeException.DUPLICATE_STUDENT_IN_EXCEL, null, studentIdentification);
+                    throw new RepositoryException(CodeException.DUPLICATE_STUDENT_IN_EXCEL, null,
+                            studentIdentification);
                 }
 
                 studentIdentifications.add(studentIdentification);
@@ -135,7 +137,8 @@ public class MySQLRepositoryServiceImpl implements RepositoryService {
                 final BigDecimal noteThree = this.getBigDecimalFromCell(row.getCell(3));
                 this.validateNotes(noteOne, noteTwo, noteThree);
 
-                final RegisteredEntity existingRegistration = existingRegistrations.get(studentIdentification + "_" + idSubject);
+                final RegisteredEntity existingRegistration = existingRegistrations.get(
+                        studentIdentification + ConstantsRepository.CONCATENATE + idSubject);
 
                 if (existingRegistration != null) {
                     final BigDecimal average = this.calculateAverage(noteOne, noteTwo, noteThree);
@@ -145,7 +148,8 @@ public class MySQLRepositoryServiceImpl implements RepositoryService {
                     existingRegistration.setAverage(average);
                     this.registeredRepository.save(existingRegistration);
                 } else {
-                    throw new RepositoryException(CodeException.INVALID_PARAMETERS, null, "registered");
+                    throw new RepositoryException(CodeException.INVALID_PARAMETERS, null,
+                            ConstantsRepository.REGISTERED);
                 }
             }
         } catch (final IOException e) {
@@ -154,11 +158,11 @@ public class MySQLRepositoryServiceImpl implements RepositoryService {
     }
 
     private String getStudentIdentification(final Cell cell) {
-        if (cell == null) return "";
+        if (cell == null) return ConstantsRepository.DEFAULT_VALUE;
         return switch (cell.getCellType()) {
             case STRING -> cell.getStringCellValue();
             case NUMERIC -> String.valueOf((long) cell.getNumericCellValue());
-            default -> "";
+            default -> ConstantsRepository.DEFAULT_VALUE;
         };
     }
 
@@ -170,7 +174,7 @@ public class MySQLRepositoryServiceImpl implements RepositoryService {
 
     private void validateSingleNote(final BigDecimal note) {
         if (note == null) {
-            throw new RepositoryException(CodeException.INVALID_PARAMETERS, null, "note");
+            throw new RepositoryException(CodeException.INVALID_PARAMETERS, null, ConstantsRepository.NOTE);
         }
 
         if (note.compareTo(BigDecimal.ONE) < 0 || note.compareTo(BigDecimal.valueOf(100)) > 0) {
@@ -186,7 +190,7 @@ public class MySQLRepositoryServiceImpl implements RepositoryService {
 
     private BigDecimal getBigDecimalFromCell(final Cell cell) {
         if (cell == null || cell.getCellType() != CellType.NUMERIC) {
-            throw new RepositoryException(CodeException.INVALID_PARAMETERS, null, "note");
+            throw new RepositoryException(CodeException.INVALID_PARAMETERS, null, ConstantsRepository.NOTE);
         }
 
         final BigDecimal note = BigDecimal.valueOf(cell.getNumericCellValue());
@@ -202,89 +206,103 @@ public class MySQLRepositoryServiceImpl implements RepositoryService {
         final List<RegisteredEntity> registeredEntityList =
                 this.registeredRepository.findAllBySubjectIdOrderByAverageDesc((long) subjectId);
         if (registeredEntityList.isEmpty()) {
-            throw new RepositoryException(CodeException.EMPTY_LIST, null, "records");
+            throw new RepositoryException(CodeException.EMPTY_LIST, null, ConstantsRepository.RECORDS);
         }
 
         try (final PDDocument document = new PDDocument(); final ByteArrayOutputStream baos = new ByteArrayOutputStream()) {
-            PDPage page = new PDPage();
-            document.addPage(page);
-            PDPageContentStream contentStream = new PDPageContentStream(document, page);
-
-            try {
-                contentStream.setFont(PDType1Font.HELVETICA_BOLD, 16);
-                contentStream.beginText();
-                contentStream.newLineAtOffset(220, 750);
-                contentStream.showText("Lista de Registros");
-                contentStream.endText();
-
-                final float marginLeft = 50;
-                float marginTop = 700;
-                final float rowHeight = 20;
-                final float tableWidth = 500;
-
-                final String[] headers = {"Estudiante", "Nombre1", "Nombre2", "Apellido1", "Apellido2",
-                        "Documento", "Promedio"};
-
-                contentStream.setFont(PDType1Font.HELVETICA_BOLD, 12);
-                contentStream.beginText();
-                contentStream.newLineAtOffset(marginLeft, marginTop);
-
-                for (final String header : headers) {
-                    contentStream.showText(header);
-                    contentStream.newLineAtOffset(tableWidth / headers.length, 0);
-                }
-
-                contentStream.endText();
-
-                contentStream.setFont(PDType1Font.HELVETICA, 10);
-                marginTop -= rowHeight;
-
-                for (final RegisteredEntity registered : registeredEntityList) {
-                    if (marginTop < 50) {
-                        contentStream.close();
-                        page = new PDPage();
-                        document.addPage(page);
-                        contentStream = new PDPageContentStream(document, page);
-                        marginTop = 700;
-                    }
-
-                    contentStream.beginText();
-                    contentStream.newLineAtOffset(marginLeft, marginTop);
-
-                    contentStream.showText(String.valueOf(registered.getStudent().getId()));
-                    contentStream.newLineAtOffset(tableWidth / headers.length, 0);
-
-                    contentStream.showText(registered.getStudent().getFirstName());
-                    contentStream.newLineAtOffset(tableWidth / headers.length, 0);
-
-                    contentStream.showText(registered.getStudent().getSecondName());
-                    contentStream.newLineAtOffset(tableWidth / headers.length, 0);
-
-                    contentStream.showText(registered.getStudent().getSurname());
-                    contentStream.newLineAtOffset(tableWidth / headers.length, 0);
-
-                    contentStream.showText(registered.getStudent().getSecondSurname());
-                    contentStream.newLineAtOffset(tableWidth / headers.length, 0);
-
-                    contentStream.showText(registered.getStudent().getDocumentNumber());
-                    contentStream.newLineAtOffset(tableWidth / headers.length, 0);
-
-                    contentStream.showText(String.valueOf(registered.getAverage()));
-                    contentStream.newLineAtOffset(tableWidth / headers.length, 0);
-
-                    contentStream.endText();
-                    marginTop -= rowHeight;
-                }
-
-            } finally {
-                contentStream.close();
-            }
-
+            this.createPdfContent(document, registeredEntityList); // Pass document here
             document.save(baos);
             return baos.toByteArray();
-
         } catch (final IOException e) {
             throw new RepositoryException(CodeException.PDF_GENERATION_ERROR, null);
+        }
+    }
+
+
+    private void createPdfContent(final PDDocument document, final List<RegisteredEntity> registeredEntityList) throws IOException {
+        final PDPage page = new PDPage();
+        document.addPage(page);
+
+        try (final PDPageContentStream contentStream = new PDPageContentStream(document, page)) {
+            this.createTitle(contentStream);
+            this.createHeader(contentStream);
+            this.createBody(document, contentStream, registeredEntityList); // Pass document and contentStream here
+        }
+    }
+
+    private void createTitle(final PDPageContentStream contentStream) throws IOException {
+        contentStream.setFont(PDType1Font.HELVETICA_BOLD, 16);
+        contentStream.beginText();
+        contentStream.newLineAtOffset(220, 750);
+        contentStream.showText(ConstantsRepository.TITLE);
+        contentStream.endText();
+    }
+
+    private void createHeader(final PDPageContentStream contentStream) throws IOException {
+        final float marginLeft = 50;
+        final float marginTop = 700;
+        final float tableWidth = 500;
+        final String[] headers = ConstantsRepository.HEADERS;
+
+        contentStream.setFont(PDType1Font.HELVETICA_BOLD, 12);
+        contentStream.beginText();
+        contentStream.newLineAtOffset(marginLeft, marginTop);
+
+        for (final String header : headers) {
+            contentStream.showText(header);
+            contentStream.newLineAtOffset(tableWidth / headers.length, 0);
+        }
+
+        contentStream.endText();
+    }
+
+    private void createBody(final PDDocument document, PDPageContentStream contentStream, final List<RegisteredEntity> registeredEntityList) throws IOException {
+        final float marginLeft = 50;
+        float marginTop = 680; // Adjusted to start below the header
+        final float rowHeight = 20;
+        final float tableWidth = 500;
+
+        contentStream.setFont(PDType1Font.HELVETICA, 10);
+
+        for (final RegisteredEntity registered : registeredEntityList) {
+            if (marginTop < 50) {
+                contentStream.close();
+                final PDPage page = new PDPage();
+                document.addPage(page);
+                try (final PDPageContentStream newContentStream = new PDPageContentStream(document, page)) {
+                    this.createTitle(newContentStream);
+                    this.createHeader(newContentStream);
+                    contentStream = newContentStream;
+                    marginTop = 680;
+                }
+            }
+
+            contentStream.beginText();
+            contentStream.newLineAtOffset(marginLeft, marginTop);
+
+            contentStream.showText(String.valueOf(registered.getStudent().getId()));
+            contentStream.newLineAtOffset(tableWidth / ConstantsRepository.HEADERS.length, 0);
+
+            contentStream.showText(registered.getStudent().getFirstName());
+            contentStream.newLineAtOffset(tableWidth / ConstantsRepository.HEADERS.length, 0);
+
+            contentStream.showText(registered.getStudent().getSecondName());
+            contentStream.newLineAtOffset(tableWidth / ConstantsRepository.HEADERS.length, 0);
+
+            contentStream.showText(registered.getStudent().getSurname());
+            contentStream.newLineAtOffset(tableWidth / ConstantsRepository.HEADERS.length, 0);
+
+            contentStream.showText(registered.getStudent().getSecondSurname());
+            contentStream.newLineAtOffset(tableWidth / ConstantsRepository.HEADERS.length, 0);
+
+            contentStream.showText(registered.getStudent().getDocumentNumber());
+            contentStream.newLineAtOffset(tableWidth / ConstantsRepository.HEADERS.length, 0);
+
+            contentStream.showText(String.valueOf(registered.getAverage()));
+            contentStream.newLineAtOffset(tableWidth / ConstantsRepository.HEADERS.length, 0);
+
+            contentStream.endText();
+            marginTop -= rowHeight;
         }
     }
 }
