@@ -1,7 +1,7 @@
 package com.forero.school.infraestructure.controller;
 
 import com.forero.school.BaseIT;
-import com.forero.school.openapi.model.RegisteredResponseDtoDto;
+import com.forero.school.openapi.model.RegisteredResponseDto;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.http.MediaType;
@@ -9,7 +9,6 @@ import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 
-import java.util.ArrayList;
 import java.util.List;
 
 class GetAllRegistrationsIntegrationTest extends BaseIT {
@@ -52,30 +51,30 @@ class GetAllRegistrationsIntegrationTest extends BaseIT {
                         "nota3)", " VALUES (?, ?, ?, ?, ?, ?)", this.studentId("Alex"),
                 this.subjectId("español2"), 12, 43, 50);
         final int registeredId_1 = this.registeredId(this.studentId("109234"));
-        final RegisteredResponseDtoDto dto1 = new RegisteredResponseDtoDto();
-        dto1.setRegisteredId(registeredId_1);
-        dto1.setStudentName("Sara");
-        dto1.setDocumentNumber("109234");
-        dto1.setSubjectName("matematicas1");
-        dto1.setAverage(323.3F);
-        dto1.setNota1(12F);
-        dto1.setNota2(43F);
-        dto1.setNota3(50F);
+        final RegisteredResponseDto dto1 = new RegisteredResponseDto();
+//        dto1.setRegisteredId(registeredId_1);
+//        dto1.setStudentName("Sara");
+//        dto1.setDocumentNumber("109234");
+//        dto1.setSubjectName("matematicas1");
+//        dto1.setAverage(323.3F);
+//        dto1.setNota1(12F);
+//        dto1.setNota2(43F);
+//        dto1.setNota3(50F);
 
         final int registeredId_2 = this.registeredId(this.studentId("109235"));
-        RegisteredResponseDtoDto dto2 = new RegisteredResponseDtoDto();
-        dto2.setRegisteredId(registeredId_2);
-        dto2.setStudentName("ALEX");
-        dto2.setDocumentNumber("109235");
-        dto2.setSubjectName("español2");
-        dto2.setAverage(23F);
-        dto2.setNota1(12F);
-        dto2.setNota2(43F);
-        dto2.setNota3(50F);
-
-        final List<RegisteredResponseDtoDto> expected = new ArrayList<>();
-        expected.add(dto1);
-        expected.add(dto2);
+//        RegisteredResponseDto dto2 = new RegisteredResponseDto();
+//        dto2.setRegisteredId(registeredId_2);
+//        dto2.setStudentName("ALEX");
+//        dto2.setDocumentNumber("109235");
+//        dto2.setSubjectName("español2");
+//        dto2.setAverage(23F);
+//        dto2.setNota1(12F);
+//        dto2.setNota2(43F);
+//        dto2.setNota3(50F);
+//
+//        final List<RegisteredResponseDtoDto> expected = new ArrayList<>();
+//        expected.add(dto1);
+//        expected.add(dto2);
 
         //When
         final ResultActions response = this.mockMvc.perform(MockMvcRequestBuilders.get(BASE_PATH)

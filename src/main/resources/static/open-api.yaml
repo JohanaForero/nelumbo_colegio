@@ -53,22 +53,28 @@ paths:
                 format: binary
         500:
           description: Internal server error
-  /registrations:
+  /students/{subjectId}:
     get:
       tags:
         - School
-      summary: Get all registrations
-      description: Returns a list of all registered entities.
-      operationId: getAllRegistrations
+      summary: Get all students in a subject ordered by average
+      description: Returns a list of all registered students in a specific subject ordered by average, from highest to lowest.
+      operationId: getAllRegistrationsBySubject
+      parameters:
+        - name: subjectId
+          in: path
+          required: true
+          schema:
+            type: integer
       responses:
         200:
-          description: A list of all registrations
+          description: A list of all registered students ordered by average
           content:
             application/json:
               schema:
                 type: array
                 items:
-                  $ref: '#/components/schemas/RegisteredResponseDto'
+                  $ref: '#/components/schemas/RegisteredResponse'
         404:
           description: Not Found - If the resource list is empty, return EMPTY_LIST.
           content:
@@ -170,42 +176,41 @@ components:
           example: 123
         studentName:
           $ref: '#/components/schemas/studentName'
-    RegisteredResponseDto:
+    RegisteredResponse:
       type: object
       required:
-        - registeredId
-        - studentName
+        - studentId
+        - firstName
+        - surname
+        - secondSurname
+        - secondName
         - documentNumber
-        - subjectName
         - average
-        - nota1
-        - nota2
-        - nota3
       properties:
-        registeredId:
+        studentId:
           type: integer
           description: The ID of the student
           example: 123
-        studentName:
-          $ref: '#/components/schemas/studentName'
-        documentNumber:
+        firstName:
           type: string
           description: The name of the student
           example: John Doe
-        subjectName:
+        surname:
+          type: string
+          description: The name of the student
+          example: John Doe
+        secondSurname:
+          type: string
+          description: The name of the student
+          example: John Doe
+        secondName:
+          type: string
+          description: The name of the student
+          example: John Doe
+        documentNumber:
           type: string
           description: The name of the student
           example: John Doe
         average:
           type: number
           format: float
-        nota1:
-          type: number
-          format: float
-        nota2:
-          type: number
-          format: float
-        nota3:
-          type: number
-          format: float
-

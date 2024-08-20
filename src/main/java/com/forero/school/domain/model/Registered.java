@@ -1,7 +1,5 @@
 package com.forero.school.domain.model;
 
-import com.forero.school.infraestructure.repository.entity.StudentEntity;
-import com.forero.school.infraestructure.repository.entity.SubjectEntity;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -12,9 +10,9 @@ import java.math.BigDecimal;
 public class Registered {
     private Long id;
 
-    private StudentEntity student;
+    private Student student;
 
-    private SubjectEntity subject;
+    private Subject subject;
 
     private BigDecimal average;
 

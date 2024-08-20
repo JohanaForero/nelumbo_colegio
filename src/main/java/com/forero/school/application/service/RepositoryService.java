@@ -13,7 +13,7 @@ public interface RepositoryService {
 
     List<GeneralAggregate> getAllSubjectAndStudents();
 
-    List<Registered> getAllRegistered();
+    List<Registered> getAllRegistered(int subjectId);
 
     void uploadGrades(MultipartFile[] file, int idSubject);
 

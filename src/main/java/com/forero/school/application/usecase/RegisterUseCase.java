@@ -35,8 +35,8 @@ public record RegisterUseCase(RepositoryService repositoryService) {
         return this.repositoryService.getAllSubjectAndStudents();
     }
 
-    public List<Registered> getAllRecords() {
-        return this.repositoryService.getAllRegistered();
+    public List<Registered> getAllRecords(final int subjectId) {
+        return this.repositoryService.getAllRegistered(subjectId);
     }
 
     public byte[] generatePDF() {

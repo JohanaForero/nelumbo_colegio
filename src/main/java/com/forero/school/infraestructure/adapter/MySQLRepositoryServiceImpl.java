@@ -82,14 +82,15 @@ public class MySQLRepositoryServiceImpl implements RepositoryService {
     }
 
     @Override
-    public List<Registered> getAllRegistered() {
-        final List<RegisteredEntity> registeredEntityList = this.registeredRepository.findAll();
+    public List<Registered> getAllRegistered(final int subjectId) {
+        final List<RegisteredEntity> registeredEntityList =
+                this.registeredRepository.findAllBySubjectIdOrderByAverageDesc((long) subjectId);
         if (registeredEntityList.isEmpty()) {
             throw new RepositoryException(CodeException.EMPTY_LIST, null, "records");
         }
         return registeredEntityList
                 .stream()
-                .map(this.registeredMapper::toModel)
+                .map(this.registeredMapper::toEntityToModel)
                 .toList();
     }
 
@@ -113,6 +114,9 @@ public class MySQLRepositoryServiceImpl implements RepositoryService {
             final Map<String, RegisteredEntity> existingRegistrations = new HashMap<>();
 
             final List<RegisteredEntity> registrations = this.registeredRepository.findAllBySubjectId(idSubject);
+            if (registrations.isEmpty()) {
+                throw new RepositoryException(CodeException.EMPTY_LIST, null, "records");
+            }
             for (final RegisteredEntity registration : registrations) {
                 final String key = registration.getStudent().getDocumentNumber() + "_" + idSubject;
                 existingRegistrations.put(key, registration);
@@ -153,14 +157,11 @@ public class MySQLRepositoryServiceImpl implements RepositoryService {
 
     private String getStudentIdentification(final Cell cell) {
         if (cell == null) return "";
-        switch (cell.getCellType()) {
-            case STRING:
-                return cell.getStringCellValue();
-            case NUMERIC:
-                return String.valueOf((long) cell.getNumericCellValue());
-            default:
-                return "";
-        }
+        return switch (cell.getCellType()) {
+            case STRING -> cell.getStringCellValue();
+            case NUMERIC -> String.valueOf((long) cell.getNumericCellValue());
+            default -> "";
+        };
     }
 
     private void validateNotes(final BigDecimal noteOne, final BigDecimal noteTwo, final BigDecimal noteThree) {
@@ -177,19 +178,6 @@ public class MySQLRepositoryServiceImpl implements RepositoryService {
         if (note.compareTo(BigDecimal.ONE) < 0 || note.compareTo(BigDecimal.valueOf(100)) > 0) {
             throw new RepositoryException(CodeException.INVALID_NOTE, null);
         }
-    }
-
-    private SubjectEntity getSubject(final int subjectId) {
-        final SubjectEntity subjectEntity = this.subjectRepository.findById((long) subjectId).orElse(null);
-        if (subjectEntity == null) {
-            throw new RepositoryException(CodeException.SUBJECT_NOT_FOUND, null, String.valueOf(subjectId));
-        }
-        return subjectEntity;
-    }
-
-    private StudentEntity getSubject(final String studentIdentification) {
-        return this.studentRepository.findByDocumentNumber(studentIdentification)
-                .orElseThrow(() -> new RepositoryException(CodeException.STUDENT_NOT_FOUND, null, studentIdentification));
     }
 
     private BigDecimal calculateAverage(final BigDecimal noteOne, final BigDecimal noteTwo, final BigDecimal noteThree) {
