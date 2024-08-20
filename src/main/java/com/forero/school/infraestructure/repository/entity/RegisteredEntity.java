@@ -33,15 +33,19 @@ public class RegisteredEntity {
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "subject_id")
     private SubjectEntity subject;
+
     @NotNull
     @Column(name = "average")
     private BigDecimal average;
+
     @NotNull
     @Column(name = "nota1")
     private BigDecimal nota1;
+
     @NotNull
     @Column(name = "nota2")
     private BigDecimal nota2;
+
     @NotNull
     @Column(name = "nota3")
     private BigDecimal nota3;

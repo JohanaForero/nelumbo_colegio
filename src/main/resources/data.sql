@@ -137,3 +137,155 @@ WHERE NOT EXISTS (SELECT 1 FROM student WHERE document_number = '3123555041');
 INSERT INTO student (first_name, second_name, phone, city, address, surname, second_surname, document_number)
 SELECT 'Denise', 'Lor', '312455', 'bogota', 'bella vista', 'lopez', 'lopez', '3123555040'
 WHERE NOT EXISTS (SELECT 1 FROM student WHERE document_number = '3123555040');
+
+
+INSERT INTO school_db.registered (student_id, subject_id, average, nota1, nota2, nota3)
+SELECT
+    s.id AS student_id,
+    sub.id AS subject_id,
+    1.0 AS average,
+    1.0 AS nota1,
+    1.0 AS nota2,
+    1.0 AS nota3
+FROM
+    student s
+    JOIN subject sub ON sub.name = 'Matematicas'
+WHERE
+    s.document_number = '3123555040'
+    AND NOT EXISTS (SELECT 1 FROM registered r WHERE r.student_id = s.id AND r.subject_id = sub.id);
+
+INSERT INTO school_db.registered (student_id, subject_id, average, nota1, nota2, nota3)
+SELECT
+    s.id AS student_id,
+    sub.id AS subject_id,
+    1.0 AS average,
+    1.0 AS nota1,
+    1.0 AS nota2,
+    1.0 AS nota3
+FROM
+    student s
+    JOIN subject sub ON sub.name = 'Matematicas'
+WHERE
+    s.document_number = '3123555041'
+    AND NOT EXISTS (SELECT 1 FROM registered r WHERE r.student_id = s.id AND r.subject_id = sub.id);
+
+
+INSERT INTO school_db.registered (student_id, subject_id, average, nota1, nota2, nota3)
+SELECT
+    s.id AS student_id,
+    sub.id AS subject_id,
+    1.0 AS average,
+    1.0 AS nota1,
+    1.0 AS nota2,
+    1.0 AS nota3
+FROM
+    student s
+    JOIN subject sub ON sub.name = 'Ingles'
+WHERE
+    s.document_number = '3123555042'
+    AND NOT EXISTS (SELECT 1 FROM registered r WHERE r.student_id = s.id AND r.subject_id = sub.id);
+
+INSERT INTO school_db.registered (student_id, subject_id, average, nota1, nota2, nota3)
+SELECT
+    s.id AS student_id,
+    sub.id AS subject_id,
+    1.0 AS average,
+    1.0 AS nota1,
+    1.0 AS nota2,
+    1.0 AS nota3
+FROM
+    student s
+    JOIN subject sub ON sub.name = 'Ingles'
+WHERE
+    s.document_number = '3123555043'
+    AND NOT EXISTS (SELECT 1 FROM registered r WHERE r.student_id = s.id AND r.subject_id = sub.id);
+
+INSERT INTO school_db.registered (student_id, subject_id, average, nota1, nota2, nota3)
+SELECT
+    s.id AS student_id,
+    sub.id AS subject_id,
+    1.0 AS average,
+    1.0 AS nota1,
+    1.0 AS nota2,
+    1.0 AS nota3
+FROM
+    student s
+    JOIN subject sub ON sub.name = 'Sociales'
+WHERE
+    s.document_number = '3123555045'
+    AND NOT EXISTS (SELECT 1 FROM registered r WHERE r.student_id = s.id AND r.subject_id = sub.id);
+
+INSERT INTO school_db.registered (student_id, subject_id, average, nota1, nota2, nota3)
+SELECT
+    s.id AS student_id,
+    sub.id AS subject_id,
+    1.0 AS average,
+    1.0 AS nota1,
+    1.0 AS nota2,
+    1.0 AS nota3
+FROM
+    student s
+    JOIN subject sub ON sub.name = 'Sociales'
+WHERE
+    s.document_number = '3123555046'
+    AND NOT EXISTS (SELECT 1 FROM registered r WHERE r.student_id = s.id AND r.subject_id = sub.id);
+
+INSERT INTO school_db.registered (student_id, subject_id, average, nota1, nota2, nota3)
+SELECT
+    s.id AS student_id,
+    sub.id AS subject_id,
+    1.0 AS average,
+    1.0 AS nota1,
+    1.0 AS nota2,
+    1.0 AS nota3
+FROM
+    student s
+    JOIN subject sub ON sub.name = 'Matematicas'
+WHERE
+    s.document_number = '3123555047'
+    AND NOT EXISTS (SELECT 1 FROM registered r WHERE r.student_id = s.id AND r.subject_id = sub.id);
+
+INSERT INTO school_db.registered (student_id, subject_id, average, nota1, nota2, nota3)
+SELECT
+    s.id AS student_id,
+    sub.id AS subject_id,
+    1.0 AS average,
+    1.0 AS nota1,
+    1.0 AS nota2,
+    1.0 AS nota3
+FROM
+    student s
+    JOIN subject sub ON sub.name = 'Religion'
+WHERE
+    s.document_number = '3123556069'
+    AND NOT EXISTS (SELECT 1 FROM registered r WHERE r.student_id = s.id AND r.subject_id = sub.id);
+
+INSERT INTO school_db.registered (student_id, subject_id, average, nota1, nota2, nota3)
+SELECT
+    s.id AS student_id,
+    sub.id AS subject_id,
+    1.0 AS average,
+    1.0 AS nota1,
+    1.0 AS nota2,
+    1.0 AS nota3
+FROM
+    student s
+    JOIN subject sub ON sub.name = 'Religion'
+WHERE
+    s.document_number = '3123556068'
+    AND NOT EXISTS (SELECT 1 FROM registered r WHERE r.student_id = s.id AND r.subject_id = sub.id);
+
+INSERT INTO school_db.registered (student_id, subject_id, average, nota1, nota2, nota3)
+SELECT
+    s.id AS student_id,
+    sub.id AS subject_id,
+    1.0 AS average,
+    1.0 AS nota1,
+    1.0 AS nota2,
+    1.0 AS nota3
+FROM
+    student s
+    JOIN subject sub ON sub.name = 'Religion'
+WHERE
+    s.document_number = '3124556068'
+    AND NOT EXISTS (SELECT 1 FROM registered r WHERE r.student_id = s.id AND r.subject_id = sub.id);

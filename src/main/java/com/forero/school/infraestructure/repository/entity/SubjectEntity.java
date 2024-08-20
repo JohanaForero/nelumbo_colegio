@@ -23,10 +23,12 @@ public class SubjectEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
     @NotNull
     @Column(name = "name", unique = true)
     private String name;
 
+    @NotNull
     @Column(name = "notes_size")
     private int notesSize;
 }

@@ -7,7 +7,7 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Index;
 import jakarta.persistence.Table;
-import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.NotBlank;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -23,10 +23,10 @@ public class StudentEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    @NotNull
+    @NotBlank
     @Column(name = "first_name")
     private String firstName;
-    @NotNull
+    @NotBlank
     @Column(name = "second_name")
     private String secondName;
 
@@ -38,14 +38,15 @@ public class StudentEntity {
 
     @Column(name = "address")
     private String address;
-    @NotNull
+    @NotBlank
     @Column(name = "surname")
     private String surname;
-    @NotNull
+
+    @NotBlank
     @Column(name = "second_surname")
     private String secondSurname;
 
-    @NotNull
+    @NotBlank
     @Column(name = "document_number", unique = true)
     private String documentNumber;
 }

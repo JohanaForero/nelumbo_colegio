@@ -103,40 +103,24 @@ public class MySQLRepositoryServiceImpl implements RepositoryService {
             final Sheet sheet = workbook.getSheetAt(0);
             final Iterator<Row> iterator = sheet.iterator();
 
-            if (iterator.hasNext()) {
-                iterator.next();
-            }
-
             if (!iterator.hasNext()) {
                 throw new RepositoryException(CodeException.INVALID_PARAMETERS, null, "file");
             }
+
+            iterator.next();
 
             final Set<String> studentIdentifications = new HashSet<>();
             final Map<String, RegisteredEntity> existingRegistrations = new HashMap<>();
 
             final List<RegisteredEntity> registrations = this.registeredRepository.findAllBySubjectId(idSubject);
             for (final RegisteredEntity registration : registrations) {
-                existingRegistrations.put(
-                        registration.getStudent().getDocumentNumber() + "_" + idSubject, registration);
+                final String key = registration.getStudent().getDocumentNumber() + "_" + idSubject;
+                existingRegistrations.put(key, registration);
             }
 
             while (iterator.hasNext()) {
                 final Row row = iterator.next();
-                String studentIdentification = "";
-                final Cell cell = row.getCell(0);
-
-                if (cell != null) {
-                    switch (cell.getCellType()) {
-                        case STRING:
-                            studentIdentification = cell.getStringCellValue();
-                            break;
-                        case NUMERIC:
-                            studentIdentification = String.valueOf((long) cell.getNumericCellValue());
-                            break;
-                        default:
-                            break;
-                    }
-                }
+                final String studentIdentification = this.getStudentIdentification(row.getCell(0));
 
                 if (studentIdentifications.contains(studentIdentification)) {
                     throw new RepositoryException(CodeException.DUPLICATE_STUDENT_IN_EXCEL, null, studentIdentification);
@@ -144,38 +128,38 @@ public class MySQLRepositoryServiceImpl implements RepositoryService {
 
                 studentIdentifications.add(studentIdentification);
 
-                // Obtener y validar las notas
                 final BigDecimal noteOne = this.getBigDecimalFromCell(row.getCell(1));
                 final BigDecimal noteTwo = this.getBigDecimalFromCell(row.getCell(2));
                 final BigDecimal noteThree = this.getBigDecimalFromCell(row.getCell(3));
                 this.validateNotes(noteOne, noteTwo, noteThree);
 
-                final StudentEntity studentEntity = this.getSubject(studentIdentification);
-                final SubjectEntity subjectEntity = this.getSubject(idSubject);
-                final BigDecimal average = this.calculateAverage(noteOne, noteTwo, noteThree);
-
-                final RegisteredEntity existingRegistration =
-                        existingRegistrations.get(studentIdentification + "_" + idSubject);
+                final RegisteredEntity existingRegistration = existingRegistrations.get(studentIdentification + "_" + idSubject);
 
                 if (existingRegistration != null) {
+                    final BigDecimal average = this.calculateAverage(noteOne, noteTwo, noteThree);
                     existingRegistration.setNota1(noteOne);
                     existingRegistration.setNota2(noteTwo);
                     existingRegistration.setNota3(noteThree);
                     existingRegistration.setAverage(average);
                     this.registeredRepository.save(existingRegistration);
                 } else {
-                    final RegisteredEntity registeredEntity = new RegisteredEntity();
-                    registeredEntity.setStudent(studentEntity);
-                    registeredEntity.setSubject(subjectEntity);
-                    registeredEntity.setAverage(average);
-                    registeredEntity.setNota1(noteOne);
-                    registeredEntity.setNota2(noteTwo);
-                    registeredEntity.setNota3(noteThree);
-                    this.registeredRepository.save(registeredEntity);
+                    throw new RepositoryException(CodeException.INVALID_PARAMETERS, null, "registered");
                 }
             }
         } catch (final IOException e) {
-            throw new RepositoryException(CodeException.INTERNAL_SERVER_ERROR, null);
+            throw new RepositoryException(CodeException.INTERNAL_SERVER_ERROR, null, e.getMessage());
+        }
+    }
+
+    private String getStudentIdentification(final Cell cell) {
+        if (cell == null) return "";
+        switch (cell.getCellType()) {
+            case STRING:
+                return cell.getStringCellValue();
+            case NUMERIC:
+                return String.valueOf((long) cell.getNumericCellValue());
+            default:
+                return "";
         }
     }
 
