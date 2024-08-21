@@ -2,6 +2,7 @@ package com.forero.school.infraestructure.controller;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.forero.school.BaseIT;
+import com.forero.school.openapi.model.ErrorObjectDto;
 import com.forero.school.openapi.model.RegisteredResponseDto;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -17,15 +18,15 @@ import java.util.List;
 class GetAllRegistrationsBySubjectIntegrationTest extends BaseIT {
     private static final String BASE_PATH = "/school/students/";
 
-    private int studentId(final String documentNumber) {
+    private int studentId() {
         final Integer id = this.jdbcTemplate.queryForObject("SELECT id FROM student WHERE document_number = ?",
-                Integer.class, documentNumber);
+                Integer.class, "109234");
         return id != null ? id : 0;
     }
 
-    private int subjectId(final String name) {
+    private int subjectId() {
         final Integer id = this.jdbcTemplate.queryForObject("SELECT id FROM subject WHERE name = ?",
-                Integer.class, name);
+                Integer.class, "ingles");
         return id != null ? id : 0;
     }
 
@@ -40,16 +41,16 @@ class GetAllRegistrationsBySubjectIntegrationTest extends BaseIT {
                 "VELLA-VISTA", "BOGOTA", "109234", "Valentina", "3214555", "Alvares", "lopex", "Sara");
 
         this.jdbcTemplate.update("INSERT INTO registered (student_id, subject_id, average, nota1, nota2, nota3) VALUES (?, ?, ?, ?, ?, ?)",
-                this.studentId("109234"),
-                this.subjectId("ingles"),
+                this.studentId(),
+                this.subjectId(),
                 new BigDecimal("12.0"),
                 new BigDecimal("43.0"),
                 new BigDecimal("50.0"),
                 new BigDecimal("60.0")
         );
-        final int subjectID = this.subjectId("ingles");
+        final int subjectID = this.subjectId();
         final RegisteredResponseDto registered1 = new RegisteredResponseDto();
-        registered1.setStudentId(this.studentId("109234"));
+        registered1.setStudentId(this.studentId());
         registered1.setFirstName("Valentina");
         registered1.setSurname("Sara");
         registered1.setSecondSurname("lopex");
@@ -73,5 +74,21 @@ class GetAllRegistrationsBySubjectIntegrationTest extends BaseIT {
         Assertions.assertEquals(expected, actual);
     }
 
+    @Test
+    void test_getAllRegistrationsBySubject_withSubjectIdInValid_ShouldSubjectNotFound() throws Exception {
+        //Given
+        final int subjectID = 345;
+        final ErrorObjectDto expected = new ErrorObjectDto();
+        expected.setMessage("Subject not found");
 
+        //When
+        final ResultActions response = this.mockMvc.perform(MockMvcRequestBuilders.get(BASE_PATH + subjectID)
+                .contentType(MediaType.APPLICATION_JSON_VALUE));
+
+        // Then
+        response.andExpect(MockMvcResultMatchers.status().isBadRequest());
+        final String body = response.andReturn().getResponse().getContentAsString();
+        final ErrorObjectDto actual = OBJECT_MAPPER.readValue(body, ErrorObjectDto.class);
+        Assertions.assertEquals(expected, actual);
+    }
 }
