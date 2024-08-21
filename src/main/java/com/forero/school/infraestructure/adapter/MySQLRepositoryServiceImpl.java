@@ -220,7 +220,7 @@ public class MySQLRepositoryServiceImpl implements RepositoryService {
             throw new RepositoryException(CodeException.EMPTY_LIST, null, ConstantsRepository.RECORDS);
         }
     }
-    
+
     private void createPdfContent(final PDDocument document, final List<RegisteredEntity> registeredEntityList)
             throws IOException {
         final PDPage page = new PDPage();
@@ -293,30 +293,37 @@ public class MySQLRepositoryServiceImpl implements RepositoryService {
     private void drawRow(final PDPageContentStream contentStream, final RegisteredEntity registered,
                          final float marginTop) throws IOException {
         final float marginLeft = 50.0f;
+        final float cellWidth = ConstantsRepository.TABLE_WIDTH / ConstantsRepository.HEADERS.length;
+        final float increasedCellWidthForDocument = (float) (cellWidth * 1.01);
+        final float spaceBetweenCells = 1;
 
         contentStream.beginText();
         contentStream.newLineAtOffset(marginLeft, marginTop);
 
         contentStream.showText(String.valueOf(registered.getStudent().getId()));
-        contentStream.newLineAtOffset(ConstantsRepository.TABLE_WIDTH / ConstantsRepository.HEADERS.length, 0);
+        contentStream.newLineAtOffset(cellWidth + spaceBetweenCells, 0);
 
-        contentStream.showText(registered.getStudent().getFirstName());
-        contentStream.newLineAtOffset(ConstantsRepository.TABLE_WIDTH / ConstantsRepository.HEADERS.length, 0);
+        contentStream.showText(String.valueOf(registered.getStudent().getFirstName()));
+        contentStream.newLineAtOffset(cellWidth + spaceBetweenCells, 0);
 
-        contentStream.showText(registered.getStudent().getSecondName());
-        contentStream.newLineAtOffset(ConstantsRepository.TABLE_WIDTH / ConstantsRepository.HEADERS.length, 0);
-
-        contentStream.showText(registered.getStudent().getSurname());
-        contentStream.newLineAtOffset(ConstantsRepository.TABLE_WIDTH / ConstantsRepository.HEADERS.length, 0);
-
-        contentStream.showText(registered.getStudent().getSecondSurname());
-        contentStream.newLineAtOffset(ConstantsRepository.TABLE_WIDTH / ConstantsRepository.HEADERS.length, 0);
+        contentStream.showText(String.valueOf(registered.getStudent().getSecondName()));
+        contentStream.newLineAtOffset(cellWidth + spaceBetweenCells, 0);
 
         contentStream.showText(registered.getStudent().getDocumentNumber());
-        contentStream.newLineAtOffset(ConstantsRepository.TABLE_WIDTH / ConstantsRepository.HEADERS.length, 0);
+        contentStream.newLineAtOffset(increasedCellWidthForDocument + spaceBetweenCells, 0);
+
+        contentStream.showText(String.valueOf(registered.getNota2()));
+        contentStream.newLineAtOffset(cellWidth + spaceBetweenCells, 0);
+
+        contentStream.showText(String.valueOf(registered.getNota3()));
+        contentStream.newLineAtOffset(cellWidth + spaceBetweenCells, 0);
+
+        contentStream.showText(String.valueOf(registered.getNota1()));
+        contentStream.newLineAtOffset(cellWidth + spaceBetweenCells, 0);
+
 
         contentStream.showText(String.valueOf(registered.getAverage()));
-        contentStream.newLineAtOffset(ConstantsRepository.TABLE_WIDTH / ConstantsRepository.HEADERS.length, 0);
+        contentStream.newLine();
 
         contentStream.endText();
     }

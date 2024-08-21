@@ -37,6 +37,7 @@ public record RegisterUseCase(RepositoryService repositoryService) {
     }
 
     public List<Registered> getAllRecords(final int subjectId) {
+        this.repositoryService.validateIfSubjectExists(subjectId);
         return this.repositoryService.getAllRegistered(subjectId);
     }
 
