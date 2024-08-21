@@ -7,6 +7,7 @@ import com.forero.school.domain.exception.CodeException;
 import com.forero.school.domain.model.Registered;
 import com.forero.school.infraestructure.mapper.RegisteredMapper;
 import com.forero.school.infraestructure.repository.RegisteredRepository;
+import com.forero.school.infraestructure.repository.StudentRepository;
 import com.forero.school.infraestructure.repository.SubjectRepository;
 import com.forero.school.infraestructure.repository.entity.RegisteredEntity;
 import com.forero.school.infraestructure.repository.entity.StudentEntity;
@@ -47,6 +48,7 @@ public class MySQLRepositoryServiceImpl implements RepositoryService {
     private final SubjectRepository subjectRepository;
     private final RegisteredRepository registeredRepository;
     private final RegisteredMapper registeredMapper;
+    private final StudentRepository studentRepository;
 
     @Override
     public void validateIfSubjectExists(final int subjectId) {
@@ -96,67 +98,98 @@ public class MySQLRepositoryServiceImpl implements RepositoryService {
         final MultipartFile file = files[ConstantsRepository.MINI_VALOR];
         try (final InputStream is = file.getInputStream();
              final Workbook workbook = new XSSFWorkbook(is)) {
-
             final Sheet sheet = workbook.getSheetAt(ConstantsRepository.MINI_VALOR);
             final Iterator<Row> iterator = sheet.iterator();
-
-            if (!iterator.hasNext()) {
-                throw new RepositoryException(CodeException.INVALID_PARAMETERS, null,
-                        ConstantsRepository.FILE);
-            }
-
+            this.validateFileHasRows(iterator);
             iterator.next();
-
             final Set<String> studentIdentifications = new HashSet<>();
             final Map<String, RegisteredEntity> existingRegistrations = new HashMap<>();
-
             final List<RegisteredEntity> registrations = this.registeredRepository.findAllBySubjectId(idSubject);
-            if (registrations.isEmpty()) {
-                throw new RepositoryException(CodeException.EMPTY_LIST, null, ConstantsRepository.RECORDS);
-            }
-            for (final RegisteredEntity registration : registrations) {
-                final String key = registration.getStudent().getDocumentNumber()
-                        + ConstantsRepository.CONCATENATE + idSubject;
-                existingRegistrations.put(key, registration);
-            }
-
-            while (iterator.hasNext()) {
-                final Row row = iterator.next();
-                final String studentIdentification = this.getStudentIdentification(
-                        row.getCell(ConstantsRepository.MINI_VALOR));
-
-                if (studentIdentifications.contains(studentIdentification)) {
-                    throw new RepositoryException(CodeException.DUPLICATE_STUDENT_IN_EXCEL, null,
-                            studentIdentification);
-                }
-
-                studentIdentifications.add(studentIdentification);
-
-                final BigDecimal noteOne = this.getBigDecimalFromCell(row.getCell(
-                        ConstantsRepository.NOTE_ONE_CELL_INDEX));
-                final BigDecimal noteTwo = this.getBigDecimalFromCell(row.getCell(
-                        ConstantsRepository.NOTE_TWO_CELL_INDEX));
-                final BigDecimal noteThree = this.getBigDecimalFromCell(row.getCell(
-                        ConstantsRepository.NOTE_THREE_CELL_INDEX));
-                this.validateNotes(noteOne, noteTwo, noteThree);
-
-                final RegisteredEntity existingRegistration = existingRegistrations.get(
-                        studentIdentification + ConstantsRepository.CONCATENATE + idSubject);
-
-                if (existingRegistration != null) {
-                    final BigDecimal average = this.calculateAverage(noteOne, noteTwo, noteThree);
-                    existingRegistration.setNota1(noteOne);
-                    existingRegistration.setNota2(noteTwo);
-                    existingRegistration.setNota3(noteThree);
-                    existingRegistration.setAverage(average);
-                    this.registeredRepository.save(existingRegistration);
-                } else {
-                    throw new RepositoryException(CodeException.INVALID_PARAMETERS, null,
-                            ConstantsRepository.REGISTERED);
-                }
-            }
+            this.validateRegisteredEntityList(registrations);
+            this.populateExistingRegistrations(registrations, idSubject, existingRegistrations);
+            this.processRows(iterator, studentIdentifications, existingRegistrations, idSubject);
         } catch (final IOException e) {
             throw new RepositoryException(CodeException.INTERNAL_SERVER_ERROR, null, e.getMessage());
+        }
+    }
+
+    private void processRows(final Iterator<Row> iterator,
+                             final Set<String> studentIdentifications,
+                             final Map<String, RegisteredEntity> existingRegistrations,
+                             final int idSubject) {
+        while (iterator.hasNext()) {
+            final Row row = iterator.next();
+            final String studentIdentification = this.getStudentIdentification(
+                    row.getCell(ConstantsRepository.MINI_VALOR));
+            this.validateStudentInSubject(studentIdentification, idSubject);
+            this.validateStudentIdentifications(studentIdentifications, studentIdentification);
+            studentIdentifications.add(studentIdentification);
+
+            final BigDecimal noteOne = this.getBigDecimalFromCell(row.getCell(
+                    ConstantsRepository.NOTE_ONE_CELL_INDEX));
+            final BigDecimal noteTwo = this.getBigDecimalFromCell(row.getCell(
+                    ConstantsRepository.NOTE_TWO_CELL_INDEX));
+            final BigDecimal noteThree = this.getBigDecimalFromCell(row.getCell(
+                    ConstantsRepository.NOTE_THREE_CELL_INDEX));
+            this.validateNotes(noteOne, noteTwo, noteThree);
+
+            final RegisteredEntity existingRegistration = existingRegistrations.get(
+                    studentIdentification + ConstantsRepository.CONCATENATE + idSubject);
+            this.updateAndSaveRegistration(existingRegistration, noteOne, noteTwo, noteThree);
+        }
+    }
+
+    private void validateStudentInSubject(final String documentNumber, final int idSubject) {
+        final boolean existsEstudent = this.studentRepository.existsByDocumentNumber(documentNumber);
+        final boolean exists =
+                this.registeredRepository.existsByStudentDocumentNumberAndSubjectId(documentNumber, idSubject);
+        if (!existsEstudent) {
+            throw new RepositoryException(CodeException.STUDENT_NOT_FOUND, null, documentNumber);
+        }
+        if (!exists) {
+            throw new RepositoryException(CodeException.STUDENT_NOT_ASSOCIATED, null, documentNumber);
+        }
+    }
+
+    private void validateStudentIdentifications(final Set<String> studentIdentifications,
+                                                final String studentIdentification) {
+        if (studentIdentifications.contains(studentIdentification)) {
+            throw new RepositoryException(CodeException.DUPLICATE_STUDENT_IN_EXCEL, null,
+                    studentIdentification);
+        }
+    }
+
+    private void updateAndSaveRegistration(final RegisteredEntity existingRegistration,
+                                           final BigDecimal noteOne,
+                                           final BigDecimal noteTwo,
+                                           final BigDecimal noteThree) {
+        final BigDecimal average = this.calculateAverage(noteOne, noteTwo, noteThree);
+        existingRegistration.setNota1(noteOne);
+        existingRegistration.setNota2(noteTwo);
+        existingRegistration.setNota3(noteThree);
+        existingRegistration.setAverage(average);
+        this.validateStudentExists(existingRegistration);
+        this.registeredRepository.save(existingRegistration);
+    }
+
+    private void validateStudentExists(final RegisteredEntity existingRegistration) {
+        if (existingRegistration == null) {
+            throw new RepositoryException(CodeException.INVALID_PARAMETERS, null, "students");
+        }
+    }
+
+    private void populateExistingRegistrations(final List<RegisteredEntity> registrations, final int idSubject,
+                                               final Map<String, RegisteredEntity> existingRegistrations) {
+        for (final RegisteredEntity registration : registrations) {
+            final String key = registration.getStudent().getDocumentNumber()
+                    + ConstantsRepository.CONCATENATE + idSubject;
+            existingRegistrations.put(key, registration);
+        }
+    }
+
+    private void validateFileHasRows(final Iterator<Row> iterator) {
+        if (!iterator.hasNext()) {
+            throw new RepositoryException(CodeException.INVALID_PARAMETERS, null, ConstantsRepository.FILE);
         }
     }
 
@@ -289,7 +322,6 @@ public class MySQLRepositoryServiceImpl implements RepositoryService {
             marginTop -= rowHeight;
         }
     }
-
 
     private PDPageContentStream createNewPage(final PDDocument document) throws IOException {
         final PDPage page = new PDPage();

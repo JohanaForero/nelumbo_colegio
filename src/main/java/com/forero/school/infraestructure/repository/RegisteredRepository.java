@@ -14,4 +14,6 @@ public interface RegisteredRepository extends JpaRepository<RegisteredEntity, Lo
 
     @Query("SELECT r FROM RegisteredEntity r WHERE r.subject.id = :subjectId ORDER BY r.average DESC")
     List<RegisteredEntity> findAllBySubjectIdOrderByAverageDesc(@Param("subjectId") Long subjectId);
+
+    boolean existsByStudentDocumentNumberAndSubjectId(String documentNumber, int subjectId);
 }

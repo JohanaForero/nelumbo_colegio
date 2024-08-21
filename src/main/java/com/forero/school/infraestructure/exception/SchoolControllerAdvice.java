@@ -34,6 +34,7 @@ public class SchoolControllerAdvice {
             new AbstractMap.SimpleEntry<>(CodeException.SUBJECT_NOT_FOUND, HttpStatus.BAD_REQUEST),
             new AbstractMap.SimpleEntry<>(CodeException.DUPLICATE_STUDENT_IN_EXCEL, HttpStatus.BAD_REQUEST),
             new AbstractMap.SimpleEntry<>(CodeException.PDF_GENERATION_ERROR, HttpStatus.BAD_REQUEST),
+            new AbstractMap.SimpleEntry<>(CodeException.STUDENT_NOT_ASSOCIATED, HttpStatus.BAD_REQUEST),
             new AbstractMap.SimpleEntry<>(CodeException.INTERNAL_SERVER_ERROR, HttpStatus.INTERNAL_SERVER_ERROR)
     );
 

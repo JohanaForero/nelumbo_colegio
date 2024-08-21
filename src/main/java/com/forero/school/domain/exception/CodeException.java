@@ -10,6 +10,7 @@ public enum CodeException {
     INTERNAL_SERVER_ERROR("Internal server error"),
     DUPLICATE_STUDENT_IN_EXCEL("Student %s is duplicated in Excel"),
     STUDENT_NOT_FOUND("Student %s not found"),
+    STUDENT_NOT_ASSOCIATED("Student %s is not associated with the subject"),
     INVALID_NOTE("The score must be in the range of 1 to 100."),
     PDF_GENERATION_ERROR("Error generating PDF"),
     SUBJECT_NOT_FOUND("Subject not found"),
