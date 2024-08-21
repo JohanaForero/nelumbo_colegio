@@ -103,6 +103,4 @@ class GetAllSubjectsWithStudentsIntegrationTest extends BaseIT {
         });
         Assertions.assertEquals(expected, actual);
     }
-
-
 }
