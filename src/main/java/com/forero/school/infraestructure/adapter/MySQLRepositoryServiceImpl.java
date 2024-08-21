@@ -57,17 +57,16 @@ public class MySQLRepositoryServiceImpl implements RepositoryService {
     }
 
     @Override
-    public List<GeneralAggregate> getAllSubjectAndStudents() {
-        final List<GeneralAggregate> result = new ArrayList<>();
-        final List<SubjectEntity> subject = this.subjectRepository.findAll();
-        for (final SubjectEntity subject1 : subject) {
-            final GeneralAggregate generalAggregate = new GeneralAggregate();
-            final List<StudentEntity> students = this.getStudentsBySubjectId(subject1.getId().intValue());
+    public List<GeneralAggregate<StudentEntity>> getAllSubjectAndStudents() {
+        final List<GeneralAggregate<StudentEntity>> result = new ArrayList<>();
+        final List<SubjectEntity> subjects = this.subjectRepository.findAll();
+        for (final SubjectEntity subject : subjects) {
+            final GeneralAggregate<StudentEntity> generalAggregate = new GeneralAggregate<>();
+            final List<StudentEntity> students = this.getStudentsBySubjectId(subject.getId().intValue());
             generalAggregate.setResult(students);
-            generalAggregate.setSubjectId(subject1.getId().intValue());
-            generalAggregate.setName(subject1.getName());
+            generalAggregate.setSubjectId(subject.getId().intValue());
+            generalAggregate.setName(subject.getName());
             result.add(generalAggregate);
-
         }
         return result;
     }
@@ -221,8 +220,7 @@ public class MySQLRepositoryServiceImpl implements RepositoryService {
             throw new RepositoryException(CodeException.EMPTY_LIST, null, ConstantsRepository.RECORDS);
         }
     }
-
-
+    
     private void createPdfContent(final PDDocument document, final List<RegisteredEntity> registeredEntityList)
             throws IOException {
         final PDPage page = new PDPage();

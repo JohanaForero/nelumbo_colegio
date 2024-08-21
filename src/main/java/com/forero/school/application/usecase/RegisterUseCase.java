@@ -5,6 +5,7 @@ import com.forero.school.application.service.RepositoryService;
 import com.forero.school.domain.agregate.GeneralAggregate;
 import com.forero.school.domain.exception.CodeException;
 import com.forero.school.domain.model.Registered;
+import com.forero.school.infraestructure.repository.entity.StudentEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -31,7 +32,7 @@ public record RegisterUseCase(RepositoryService repositoryService) {
         return files.toArray(new MultipartFile[0]);
     }
 
-    public List<GeneralAggregate> getAllSubjects() {
+    public List<GeneralAggregate<StudentEntity>> getAllSubjects() {
         return this.repositoryService.getAllSubjectAndStudents();
     }
 
@@ -40,6 +41,7 @@ public record RegisterUseCase(RepositoryService repositoryService) {
     }
 
     public byte[] generatePDF(final int subjectId) {
+        this.repositoryService.validateIfSubjectExists(subjectId);
         return this.repositoryService.generatePdf(subjectId);
     }
 }

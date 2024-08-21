@@ -3,6 +3,7 @@ package com.forero.school.infraestructure.controller;
 import com.forero.school.application.usecase.RegisterUseCase;
 import com.forero.school.domain.agregate.GeneralAggregate;
 import com.forero.school.infraestructure.mapper.SubjectMapper;
+import com.forero.school.infraestructure.repository.entity.StudentEntity;
 import com.forero.school.openapi.api.SubjectsStudentsApi;
 import com.forero.school.openapi.model.SubjectResponseDtoDto;
 import lombok.RequiredArgsConstructor;
@@ -22,7 +23,7 @@ public class SubjectController implements SubjectsStudentsApi {
 
     @Override
     public ResponseEntity<List<SubjectResponseDtoDto>> getAllSubjectsWithStudents() {
-        final List<GeneralAggregate> resultDomain = this.registerUseCase.getAllSubjects();
+        final List<GeneralAggregate<StudentEntity>> resultDomain = this.registerUseCase.getAllSubjects();
         final List<SubjectResponseDtoDto> resultDto = this.subjectMapper.toModel(resultDomain);
         return new ResponseEntity<>(resultDto, HttpStatus.OK);
     }

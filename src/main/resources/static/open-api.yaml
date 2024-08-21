@@ -145,6 +145,30 @@ components:
       type: string
       description: The name of the student
       example: John Doe
+    studentId:
+      type: integer
+      description: The ID of the student
+      example: 123
+    firstName:
+      type: string
+      description: The name of the student
+      example: John Doe
+    surname:
+      type: string
+      description: The name of the student
+      example: John Doe
+    secondSurname:
+      type: string
+      description: The name of the student
+      example: John Doe
+    secondName:
+      type: string
+      description: The name of the student
+      example: John Doe
+    documentNumber:
+      type: string
+      description: The name of the student
+      example: John Doe
     ErrorObject:
       type: object
       additionalProperties: false
@@ -175,14 +199,24 @@ components:
       type: object
       required:
         - studentId
-        - studentName
+        - firstName
+        - secondName
+        - surname
+        - secondSurname
+        - documentNumber
       properties:
         studentId:
-          type: integer
-          description: The ID of the student
-          example: 123
-        studentName:
-          $ref: '#/components/schemas/studentName'
+          $ref: '#/components/schemas/studentId'
+        firstName:
+          $ref: '#/components/schemas/firstName'
+        secondName:
+          $ref: '#/components/schemas/secondName'
+        surname:
+          $ref: '#/components/schemas/surname'
+        secondSurname:
+          $ref: '#/components/schemas/secondSurname'
+        documentNumber:
+          $ref: '#/components/schemas/documentNumber'
     RegisteredResponse:
       type: object
       required:
@@ -192,32 +226,33 @@ components:
         - secondSurname
         - secondName
         - documentNumber
+        - nota1
+        - nota2
+        - nota3
         - average
       properties:
         studentId:
-          type: integer
-          description: The ID of the student
-          example: 123
+          $ref: '#/components/schemas/studentId'
         firstName:
-          type: string
-          description: The name of the student
-          example: John Doe
+          $ref: '#/components/schemas/firstName'
         surname:
-          type: string
-          description: The name of the student
-          example: John Doe
+          $ref: '#/components/schemas/surname'
         secondSurname:
-          type: string
-          description: The name of the student
-          example: John Doe
+          $ref: '#/components/schemas/secondSurname'
         secondName:
-          type: string
-          description: The name of the student
-          example: John Doe
+          $ref: '#/components/schemas/secondName'
         documentNumber:
-          type: string
-          description: The name of the student
+          $ref: '#/components/schemas/documentNumber'
           example: John Doe
         average:
+          type: number
+          format: float
+        nota1:
+          type: number
+          format: float
+        nota2:
+          type: number
+          format: float
+        nota3:
           type: number
           format: float

@@ -10,34 +10,22 @@ import java.util.List;
 
 @Mapper
 public interface RegisteredMapper {
-    @Mapping(target = "average", source = "average")
-    @Mapping(target = "student.documentNumber", source = "student.documentNumber")
-    @Mapping(target = "subject.name", source = "subject.name")
-    @Mapping(target = "student.firstName", source = "student.firstName")
-    @Mapping(target = "id", source = "id")
-    @Mapping(target = "nota2", ignore = true)
-    @Mapping(target = "nota1", ignore = true)
-    @Mapping(target = "nota3", ignore = true)
-    @Mapping(target = "student.city", ignore = true)
-    @Mapping(target = "student.phone", ignore = true)
-    @Mapping(target = "student.surname", ignore = true)
-    @Mapping(target = "student.secondSurname", ignore = true)
-    @Mapping(target = "subject.id", ignore = true)
-    @Mapping(target = "subject.notesSize", ignore = true)
-    Registered toModel(RegisteredEntity registeredEntity);
-
     @Mapping(source = "student.documentNumber", target = "documentNumber")
     @Mapping(source = "student.firstName", target = "firstName")
     @Mapping(source = "student.secondName", target = "secondName")
     @Mapping(source = "student.surname", target = "surname")
+    @Mapping(target = "nota3", source = "nota3")
+    @Mapping(target = "nota2", source = "nota2")
+    @Mapping(target = "nota1", source = "nota1")
     @Mapping(source = "student.secondSurname", target = "secondSurname")
     @Mapping(source = "student.id", target = "studentId")
     @Mapping(source = "average", target = "average")
     RegisteredResponseDto toDtoToModel(Registered registered);
 
     @Mapping(target = "id", ignore = true)
-    @Mapping(target = "nota3", ignore = true)
-    @Mapping(target = "nota2", ignore = true)
+    @Mapping(target = "nota3", source = "nota3")
+    @Mapping(target = "nota2", source = "nota2")
+    @Mapping(target = "nota1", source = "nota1")
     @Mapping(target = "subject", ignore = true)
     @Mapping(target = "student.phone", ignore = true)
     @Mapping(target = "student.city", ignore = true)
