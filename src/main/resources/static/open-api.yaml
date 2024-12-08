@@ -1,0 +1,258 @@
+openapi: 3.0.2
+info:
+  title: API Documentation
+  version: 1.0.0
+servers:
+  - url: http://localhost:9090/school/
+tags:
+  - name: School
+    description: Endpoints for students and notes
+paths:
+  /subjects_students:
+    get:
+      tags:
+        - School
+      summary: Get all subjects with their students
+      description: Returns a list of subjects with their associated students.
+      operationId: getAllSubjectsWithStudents
+      responses:
+        200:
+          description: A list of subjects with students
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/SubjectResponseDto'
+        404:
+          description: Not Found - If the resource list is empty, return EMPTY_LIST.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorObject'
+        500:
+          description: Internal Server Error - Use it as a General System Error, return INTERNAL_SERVER_ERROR.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorObject'
+  /registered/generate-pdf/{subjectId}:
+    get:
+      tags:
+        - Registered
+      summary: Generate a PDF with all registered records for a subject
+      description: Returns a PDF containing all registered records for a specific subject, encoded in Base64.
+      operationId: generateAllRegisteredPdf
+      parameters:
+        - in: path
+          name: subjectId
+          required: true
+          schema:
+            type: integer
+          description: ID of the subject for which to generate the PDF
+      responses:
+        200:
+          description: PDF encoded in Base64 with all registered records
+          content:
+            application/pdf:
+              schema:
+                type: string
+                format: binary
+        500:
+          description: Internal server error
+  /students/{subjectId}:
+    get:
+      tags:
+        - School
+      summary: Get all students in a subject ordered by average
+      description: Returns a list of all registered students in a specific subject ordered by average, from highest to lowest.
+      operationId: getAllRegistrationsBySubject
+      parameters:
+        - name: subjectId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        200:
+          description: A list of all registered students ordered by average
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/RegisteredResponse'
+        404:
+          description: Not Found - If the resource list is empty, return EMPTY_LIST.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorObject'
+        500:
+          description: Internal Server Error - Use it as a General System Error, return INTERNAL_SERVER_ERROR.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorObject'
+  /notes/{subjectId}:
+    post:
+      tags:
+        - School
+      summary: Record upload of grades of a subject to a student via Excel
+      description: Register notes
+      operationId: recordNotes
+      parameters:
+        - name: subjectId
+          in: path
+          required: true
+          schema:
+            type: integer
+          description: The ID of the subject for which the notes are being uploaded.
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                files:
+                  type: array
+                  items:
+                    type: string
+                    format: binary
+                  description: Files to upload
+              required:
+                - files
+      responses:
+        204:
+          description: Student grades were uploaded successfully
+        400:
+          description: Bad Request - If the resource is misspelled (badly constructed URI) or if the data in the request is not correct.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorObject'
+        500:
+          description: Internal Server Error - Use it as a General System Error, return INTERNAL_SERVER_ERROR.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorObject'
+components:
+  schemas:
+    # Properties
+    studentName:
+      type: string
+      description: The name of the student
+      example: John Doe
+    studentId:
+      type: integer
+      description: The ID of the student
+      example: 123
+    firstName:
+      type: string
+      description: The name of the student
+      example: John Doe
+    surname:
+      type: string
+      description: The name of the student
+      example: John Doe
+    secondSurname:
+      type: string
+      description: The name of the student
+      example: John Doe
+    secondName:
+      type: string
+      description: The name of the student
+      example: John Doe
+    documentNumber:
+      type: string
+      description: The name of the student
+      example: John Doe
+    ErrorObject:
+      type: object
+      additionalProperties: false
+      properties:
+        message:
+          type: string
+          description: Error message (detailed description)
+          example: Invalid Request. Please, check the data in the request (QueryString Parameters and/or Body).
+      description: Error details
+      example:
+        message: Invalid Request. Please, check the data in the request (QueryString Parameters and/or Body).
+    SubjectResponseDto:
+      type: object
+      properties:
+        subjectId:
+          type: integer
+          description: The ID of the subject
+          example: 1
+        subjectName:
+          type: string
+          description: The name of the subject
+          example: Mathematics
+        students:
+          type: array
+          items:
+            $ref: '#/components/schemas/StudentDto'
+    StudentDto:
+      type: object
+      required:
+        - studentId
+        - firstName
+        - secondName
+        - surname
+        - secondSurname
+        - documentNumber
+      properties:
+        studentId:
+          $ref: '#/components/schemas/studentId'
+        firstName:
+          $ref: '#/components/schemas/firstName'
+        secondName:
+          $ref: '#/components/schemas/secondName'
+        surname:
+          $ref: '#/components/schemas/surname'
+        secondSurname:
+          $ref: '#/components/schemas/secondSurname'
+        documentNumber:
+          $ref: '#/components/schemas/documentNumber'
+    RegisteredResponse:
+      type: object
+      required:
+        - studentId
+        - firstName
+        - surname
+        - secondSurname
+        - secondName
+        - documentNumber
+        - nota1
+        - nota2
+        - nota3
+        - average
+      properties:
+        studentId:
+          $ref: '#/components/schemas/studentId'
+        firstName:
+          $ref: '#/components/schemas/firstName'
+        surname:
+          $ref: '#/components/schemas/surname'
+        secondSurname:
+          $ref: '#/components/schemas/secondSurname'
+        secondName:
+          $ref: '#/components/schemas/secondName'
+        documentNumber:
+          $ref: '#/components/schemas/documentNumber'
+          example: John Doe
+        average:
+          type: number
+          format: float
+        nota1:
+          type: number
+          format: float
+        nota2:
+          type: number
+          format: float
+        nota3:
+          type: number
+          format: float
